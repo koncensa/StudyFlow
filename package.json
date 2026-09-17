@@ -1,0 +1,10 @@
+{
+  "name": "studyflow1",
+  "private": true,
+  "scripts": {
+    "start": "node scripts/clean-angular-cache.js && node scripts/run-ng.js serve",
+    "start:fast": "node scripts/run-ng.js serve",
+    "ng": "node scripts/run-ng.js",
+    "ng:cache-clean": "node scripts/clean-angular-cache.js"
+  }
+}

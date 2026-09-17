@@ -1,0 +1,37 @@
+{
+  "/pdf": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/analysis": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/quiz": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/pomodoro": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/analytics": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/study": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/auth": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

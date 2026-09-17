@@ -1,0 +1,206 @@
+/* ui: pdf-assistant-modal | tr: pdf asistan modal/dialog css / en: pdf assistant modal dialog css */
+
+.pa-mainStatusHint {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.pa-mainStatusRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.pa-activeBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid #c7d2fe;
+  background: #eef2ff;    /* pdf yanındaki chat rengi*/
+  color: #4338ca;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.pa-inlineError {
+  margin: 0;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+  color: #b91c1c;
+  background: rgba(254, 226, 226, 0.75);
+  border-top: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+.pa-composer {
+  flex-shrink: 0;
+  padding: 0.6rem 0.75rem 0.72rem;
+  border-top: 1px solid #e5e7eb; /*mesaj yazma yeri rengi */
+  background: #f8f9fb;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pa-composerTop {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.pa-composerTrack {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pa-pillInput {
+  width: 100%;
+  min-height: 2.45rem;
+  max-height: 8rem;
+  resize: vertical;
+  padding: 0.58rem 2.8rem 0.58rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid #dbe1ea;
+  background: #fff; /*mesaj yazma yeri rengi*/
+  color: #0f172a;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+.pa-pillInput:focus {
+  outline: none;
+  border-color: #a5b4fc;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+.pa-pillInput:disabled {
+  color: #94a3b8;
+  background: #f8fafc;
+  cursor: not-allowed;
+}
+
+.pa-sendFab {
+  position: absolute;
+  right: 0.42rem;
+  bottom: 0.42rem;
+  width: 1.95rem;
+  height: 1.95rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.24);
+}
+
+.pa-sendFab:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.pa-sendFabSvg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.pa-modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  z-index: 1090;
+}
+
+.pa-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1100;
+}
+
+.pa-modalCard {
+  width: min(100%, 30rem);
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+  padding: 1rem;
+}
+
+.pa-modalTitle {
+  margin: 0 0 0.45rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.pa-modalHint {
+  margin: 0 0 1rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.pa-modalRow {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.pa-modalLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  margin: 0;
+}
+
+.pa-modalNum {
+  width: 4.5rem;
+  height: 2.2rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.3rem 0.45rem;
+  font-size: 0.9375rem;
+}
+
+.pa-modalActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.pa-btnSecondary,
+.pa-btnPrimary {
+  border-radius: 9px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid transparent;
+}
+
+.pa-btnSecondary {
+  border-color: #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+}
+
+.pa-btnPrimary {
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+}

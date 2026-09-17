@@ -1,0 +1,195 @@
+<!-- ui: quiz | tr: quiz html şablonu / en: quiz html template -->
+
+<div class="qz-root" *ngIf="questions && questions.length > 0">
+  <ng-container *ngIf="!submission">
+    <div class="qz-topBar">
+      <div class="qz-topMeta">
+        <span class="qz-badge">{{ t("Quiz") }}</span>
+        <span class="qz-progressText">{{ progressLabel }}</span>
+      </div>
+      <div class="qz-timer" *ngIf="remainingSeconds > 0" [class.qz-timer--urgent]="timerUrgent">
+        <span class="qz-timerLabel">{{ t("Time left") }}</span>
+        <span class="qz-timerValue">{{ timerDisplay }}</span>
+      </div>
+    </div>
+
+    <div class="qz-progressTrack" aria-hidden="true">
+      <div class="qz-progressFill" [style.width.%]="progressPercent"></div>
+    </div>
+
+    <div class="qz-card" *ngIf="currentQuestion as q">
+      <div class="qz-topicRow">
+        <span class="qz-topicPill">{{ q.topic }}</span>
+        <span class="qz-typePill text-muted small ms-2" *ngIf="q.type">{{ q.type }}</span>
+      </div>
+      <h2 class="qz-stem">{{ q.question_text }}</h2>
+
+      <div class="qz-options" role="radiogroup" [attr.aria-label]="t('Answer choices')">
+        <button
+          type="button"
+          class="qz-opt"
+          *ngFor="let opt of q.options; let i = index; trackBy: trackOption"
+          [class.qz-opt--selected]="isSelected(opt)"
+          [attr.aria-checked]="isSelected(opt)"
+          [disabled]="loading"
+          (click)="selectOption(opt)"
+        >
+          <span class="qz-optLetter">{{ optionLetter(i) }}</span>
+          <span class="qz-optText">{{ opt }}</span>
+        </button>
+      </div>
+
+      <div class="qz-nav">
+        <button type="button" class="qz-btn qz-btn--ghost" (click)="goBack()" [disabled]="!canGoBack()">
+          {{ t("Back") }}
+        </button>
+        <button
+          type="button"
+          class="qz-btn qz-btn--primary"
+          *ngIf="!isLastQuestion()"
+          (click)="goNext()"
+          [disabled]="!canGoNext()"
+        >
+          {{ t("Next") }}
+        </button>
+        <button
+          type="button"
+          class="qz-btn qz-btn--primary"
+          *ngIf="isLastQuestion()"
+          (click)="onSubmitClick()"
+          [disabled]="loading"
+        >
+          {{ loading ? t("Submitting…") : t("Submit quiz") }}
+        </button>
+      </div>
+      <p class="qz-hint text-muted small" *ngIf="isLastQuestion() && unansweredCount() > 0">
+        {{ unansweredCount() }} {{ t("question(s) still blank — you can go back or submit anyway.") }}
+      </p>
+      <p class="qz-hint" *ngIf="!isLastQuestion() && !currentHasSelection">
+        {{ t("No selection yet — you can still use Next to skip for now.") }}
+      </p>
+    </div>
+  </ng-container>
+
+  <div class="qz-result card-like" *ngIf="submission">
+    <section class="qz-resultHero">
+      <div class="qz-resultHeroTop">
+        <div>
+          <h3 class="qz-resultTitle mb-1">{{ t("Quiz results") }}</h3>
+          <p class="qz-resultSub mb-0">{{ quizResultMotivation() }}</p>
+        </div>
+        <span [class]="resultBandClass()">{{ resultBandLabel() }}</span>
+      </div>
+      <div class="qz-resultGrid">
+        <div class="qz-stat qz-stat--highlight">
+          <span class="qz-statLabel">{{ t("Score") }}</span>
+          <span class="qz-statValue">{{ scorePercentDisplayDecimal() | number : "1.0-1" }}%</span>
+        </div>
+        <div class="qz-stat">
+          <span class="qz-statLabel">{{ t("Correct") }}</span>
+          <span class="qz-statValue qz-statValue--ok">{{ submission.total_correct }}</span>
+        </div>
+        <div class="qz-stat">
+          <span class="qz-statLabel">{{ t("Wrong") }}</span>
+          <span class="qz-statValue qz-statValue--bad">{{ submission.total_wrong }}</span>
+        </div>
+        <div class="qz-stat">
+          <span class="qz-statLabel">{{ t("Blank") }}</span>
+          <span class="qz-statValue text-secondary">{{ submissionUnansweredCount }}</span>
+        </div>
+        <div class="qz-stat" *ngIf="submissionDurationSeconds > 0">
+          <span class="qz-statLabel">{{ t("Time used") }}</span>
+          <span class="qz-statValue">{{ submissionDurationSeconds }}s</span>
+        </div>
+      </div>
+      <div class="qz-improve">
+        <div class="qz-improveHead">
+          <span>{{ t("Improvement path") }}</span>
+          <strong>{{ scorePercentRounded() }}%</strong>
+        </div>
+        <div class="qz-improveTrack" aria-hidden="true">
+          <div class="qz-improveFill" [style.width.%]="scorePercentRounded()"></div>
+        </div>
+        <p class="qz-improveText mb-0">{{ focusTopicLine() }}</p>
+      </div>
+      <div class="qz-weakTopics" *ngIf="highlightedWeakTopics().length">
+        <span class="qz-weakTopicsLabel">{{ t("Weak topics to prioritize") }}</span>
+        <span class="qz-weakTopicChip" *ngFor="let topic of highlightedWeakTopics()">{{ topic }}</span>
+      </div>
+      <p class="qz-perf small mb-2" *ngIf="submission.performance_comment">{{ submission.performance_comment }}</p>
+    </section>
+
+    <section class="qz-actions">
+      <h4 class="qz-sectionTitle">{{ t("Actionable next steps") }}</h4>
+      <div class="qz-actionGrid">
+        <button
+          type="button"
+          class="qz-actionCard"
+          [class.qz-actionCard--primary]="a.style === 'primary'"
+          *ngFor="let a of personalizedActionCards()"
+          (click)="runActionCard(a.key)"
+        >
+          <span class="qz-actionTitle">{{ a.title }}</span>
+          <span class="qz-actionDetail">{{ a.detail }}</span>
+          <span class="qz-actionCta">{{ a.cta }}</span>
+        </button>
+      </div>
+      <div class="qz-resultsJump">
+        <button type="button" class="qz-ghArrowBtn" (click)="postOpenAnalysis.emit()">&gt;&gt; {{ labelOpenAnalysis() }}</button>
+      </div>
+      <p class="qz-resultHint text-muted small mb-0">
+        {{
+          locale === "tr"
+            ? "Analiz sekmesinde konu ve hata tipi özeti, kişiye özel öneriler ve mini quiz planı."
+            : "Use the Analysis tab for topic and mistake-type summaries, tailored tips, and a mini-quiz plan."
+        }}
+      </p>
+    </section>
+
+    <section class="qz-coach" *ngIf="wrongFeedbacks.length">
+      <div class="qz-coachHeader">
+        <div>
+          <h4 class="qz-coachTitle">{{ t("Mistake analysis") }}</h4>
+          <p class="qz-coachIntro mb-0">{{ t("Review each miss: your answer, correct answer, and why it failed.") }}</p>
+        </div>
+        <div class="qz-mistakeNavWrap">
+          <span class="qz-mistakeCount">{{ activeMistakeIndex + 1 }} / {{ wrongFeedbacks.length }}</span>
+          <button type="button" class="qz-ghNav" [disabled]="!canGoPrevMistake()" (click)="goPrevMistake()" aria-label="Previous mistake">
+            &lt;&lt;
+          </button>
+          <button type="button" class="qz-ghNav" [disabled]="!canGoNextMistake()" (click)="goNextMistake()" aria-label="Next mistake">
+            &gt;&gt;
+          </button>
+        </div>
+      </div>
+
+      <div class="qz-coachCard" *ngIf="activeWrongFeedback as w">
+        <div class="qz-coachMeta">
+          <span class="qz-coachIdx">#{{ w.question_index + 1 }}</span>
+          <span class="qz-coachTopic">{{ w.topic }}</span>
+          <span class="qz-coachErr" *ngIf="w.error_type">{{ errorTypeLabel(w.error_type) }}</span>
+        </div>
+        <p class="qz-coachLine qz-coachLine--muted">
+          <span class="qz-indicator qz-indicator--you" aria-hidden="true">!</span>
+          <span>{{ t("Your answer") }}:</span> {{ mistakeUserAnswerText(w) }}
+        </p>
+        <p class="qz-coachLine qz-coachLine--ok">
+          <span class="qz-indicator qz-indicator--ok" aria-hidden="true">+</span>
+          <span>{{ t("Correct answer") }}:</span> {{ w.correct_answer }}
+        </p>
+        <p class="qz-coachLine qz-coachLine--why">
+          <span class="qz-indicator qz-indicator--why" aria-hidden="true">?</span>
+          <strong>{{ t("Why wrong") }}:</strong> {{ mistakeWhyText(w) }}
+        </p>
+        <p class="qz-coachLine" *ngIf="hasConfusedConcepts(w)">
+          <strong>{{ t("Concepts to review") }}:</strong> {{ w.confused_concepts.join(", ") }}
+        </p>
+        <p class="qz-coachHint" *ngIf="w.hint">{{ w.hint }}</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="qz-empty text-muted" *ngIf="!questions || questions.length === 0">
+  {{ t("No quiz loaded yet.") }}
+</div>

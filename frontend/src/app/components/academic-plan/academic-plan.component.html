@@ -1,0 +1,389 @@
+<!-- ui: academic-plan | tr: akademik plan html şablonu / en: academic plan html template -->
+
+<div class="sf-ap container-fluid px-2 px-sm-3 px-lg-4 pb-4">
+  <div class="mb-3">
+    <h1 class="sf-panelTitle mb-1">{{ locale === "tr" ? "Akademik plan" : "Academic plan" }}</h1>
+    <p class="sf-mutedCopy small mb-0">
+      {{
+        locale === "tr"
+          ? "Hedef ve müsaitliğine göre günlük bloklar, zayıf konu ağırlığı, tekrar / quiz / tampon günleri."
+          : "Goal and availability → daily blocks, weak-topic weighting, review / quiz / buffer days."
+      }}
+    </p>
+  </div>
+
+  <p class="text-danger small" *ngIf="error">{{ error }}</p>
+
+  <div
+    class="d-flex flex-wrap gap-2 mb-3 p-2 rounded border bg-white sf-ap-localNav"
+    role="navigation"
+    [attr.aria-label]="locale === 'tr' ? 'Sayfa bölümleri' : 'Page sections'"
+  >
+    <button
+      type="button"
+      class="btn btn-sm"
+      [ngClass]="leftPanelTab === 'goal' ? 'btn-primary' : 'btn-outline-primary'"
+      (click)="openLeftPanelTab('goal')"
+    >
+      {{ locale === "tr" ? "Hedef ve girdiler" : "Goal & inputs" }}
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-primary" (click)="openPlanSummaryPanel()">
+      {{ locale === "tr" ? "Plan özeti ve görevler" : "Plan summary & tasks" }}
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm"
+      [ngClass]="leftPanelTab === 'history' ? 'btn-primary' : 'btn-outline-primary'"
+      (click)="openLeftPanelTab('history')"
+    >
+      {{ locale === "tr" ? "Plan geçmişi" : "Plan history" }}
+    </button>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12" [ngClass]="leftPanelTab === 'history' ? 'col-lg-12' : 'col-lg-5'" id="sf-ap-goal">
+      <div class="sf-goalPanel" *ngIf="leftPanelTab === 'goal'">
+        <section class="sf-leftCard">
+          <h2 class="sf-leftCardTitle">{{ locale === "tr" ? "Temel Bilgiler" : "Basic info" }}</h2>
+          <div class="sf-field">
+            <label class="sf-fieldLabel">{{ locale === "tr" ? "Ders adı" : "Course name" }}</label>
+            <input class="form-control sf-modernInput" [(ngModel)]="courseName" [disabled]="busy" />
+          </div>
+          <div class="sf-field">
+            <label class="sf-fieldLabel">{{ locale === "tr" ? "Hedef" : "Goal" }}</label>
+            <textarea
+              class="form-control sf-modernInput sf-modernInput--area"
+              rows="3"
+              [(ngModel)]="goalText"
+              [disabled]="busy"
+              [placeholder]="locale === 'tr' ? 'Örn. Midterm için hazırlan' : 'e.g. Prepare for the midterm'"
+            ></textarea>
+          </div>
+          <div class="sf-field">
+            <label class="sf-fieldLabel">{{ locale === "tr" ? "Sınav / deadline tarihi" : "Exam / deadline date" }}</label>
+            <input
+              type="date"
+              class="form-control sf-modernInput"
+              [(ngModel)]="deadlineDate"
+              [min]="clientTodayIso()"
+              [disabled]="busy"
+            />
+          </div>
+        </section>
+
+        <section class="sf-leftCard">
+          <h2 class="sf-leftCardTitle">{{ locale === "tr" ? "Çalışma Ayarı" : "Study setup" }}</h2>
+          <div class="sf-field">
+            <label class="sf-fieldLabel">{{ locale === "tr" ? "Günlük çalışma (saat)" : "Daily study hours" }}</label>
+            <input type="number" class="form-control sf-modernInput" min="0.25" max="16" step="0.25" [(ngModel)]="dailyHours" [disabled]="busy" />
+          </div>
+          <div class="sf-field">
+            <span class="sf-fieldLabel d-block mb-2">{{ locale === "tr" ? "Çalışılacak günler" : "Study weekdays" }}</span>
+            <div class="sf-weekdayWrap">
+              <button
+                type="button"
+                *ngFor="let d of weekdayDefs"
+                class="sf-dayChip"
+                [class.sf-dayChip--active]="daySelected(d.v)"
+                (click)="toggleDay(d.v)"
+                [disabled]="busy"
+              >
+                {{ locale === "tr" ? d.tr : d.en }}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="sf-leftCard">
+          <h2 class="sf-leftCardTitle">{{ locale === "tr" ? "Konular" : "Topics" }}</h2>
+          <div class="sf-field">
+            <label class="sf-fieldLabel">{{ locale === "tr" ? "Zorlandığın konular (satır veya virgül)" : "Weak topics (lines or commas)" }}</label>
+            <textarea class="form-control sf-modernInput sf-modernInput--area" rows="2" [(ngModel)]="weakTopicsText" [disabled]="busy"></textarea>
+          </div>
+          <div class="sf-field">
+            <label class="sf-fieldLabel">{{ locale === "tr" ? "Güçlü hissettiklerin (isteğe bağlı)" : "Strong / confident topics (optional)" }}</label>
+            <textarea class="form-control sf-modernInput sf-modernInput--area" rows="2" [(ngModel)]="confidentTopicsText" [disabled]="busy"></textarea>
+          </div>
+          <div class="sf-field">
+            <label class="sf-fieldLabel">{{ locale === "tr" ? "Konu sırası / bölümler (isteğe bağlı, her satır bir konu)" : "Topic outline (optional, one per line)" }}</label>
+            <textarea class="form-control sf-modernInput sf-modernInput--area" rows="3" [(ngModel)]="outlineText" [disabled]="busy"></textarea>
+          </div>
+        </section>
+
+        <section class="sf-leftCard sf-leftCard--action">
+          <button type="button" class="btn sf-goalBtn w-100" (click)="generate()" [disabled]="busy || loading">
+            {{ busy ? "…" : locale === "tr" ? "Planı oluştur / güncelle" : "Build / replace plan" }}
+          </button>
+          <p class="text-muted small mt-2 mb-0 px-1">
+            {{ locale === "tr" ? "Yeni plan son kaydı değiştirir." : "Generating saves a new plan as your latest." }}
+          </p>
+        </section>
+
+      </div>
+
+      <section class="card border-0 shadow-sm" id="sf-ap-history" *ngIf="leftPanelTab === 'history'">
+        <div class="card-body py-3">
+          <h2 class="h6 text-uppercase text-muted mb-3">{{ locale === "tr" ? "Plan geçmişi" : "Plan history" }}</h2>
+          <p class="small text-muted mb-2" *ngIf="plan">
+            <strong>{{ locale === "tr" ? "Aktif plan:" : "Active plan:" }}</strong>
+            {{ plan.course_name }} · {{ locale === "tr" ? "devam ediyor" : "in progress" }}
+          </p>
+          <p class="text-danger small" *ngIf="historyError">{{ historyError }}</p>
+          <p class="small text-muted mb-2" *ngIf="historyLoading">{{ locale === "tr" ? "Geçmiş yükleniyor..." : "Loading history..." }}</p>
+          <div class="sf-historyList" *ngIf="!historyLoading && historyItems.length; else noHistory">
+            <article class="sf-historyCard" [class.sf-historyCard--expanded]="isHistoryExpanded(h)" *ngFor="let h of historyItems; let i = index">
+              <div class="sf-historyHead">
+                <h3 class="sf-historyTitle">{{ h.course_name }}</h3>
+                <p class="sf-historyGoal mb-1">{{ h.goal_text }}</p>
+                <p class="sf-historyMeta mb-0">
+                  {{ locale === "tr" ? "Tamamlanma:" : "Completed:" }} {{ h.finished_at | date : "mediumDate" }}
+                </p>
+                <span class="sf-historyLatestBadge" *ngIf="isLatestHistoryItem(h, i)">
+                  {{ locale === "tr" ? "Son tamamlanan" : "Latest completed" }}
+                </span>
+              </div>
+              <div class="sf-historyActions">
+                <span class="sf-historyProgress">{{ historyProgressText(h) }} {{ locale === "tr" ? "tamamlandı" : "completed" }}</span>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="toggleHistoryDetails(h)">
+                  {{
+                    isHistoryExpanded(h)
+                      ? (locale === "tr" ? "Detayı kapat" : "Hide details")
+                      : (locale === "tr" ? "Detayı gör" : "View details")
+                  }}
+                </button>
+              </div>
+              <div class="sf-historyDetailWrap" *ngIf="isHistoryExpanded(h)">
+                <p class="small text-muted mb-2" *ngIf="historyViewLoading && historyViewLoadingPlanId === h.plan_id">
+                  {{ locale === "tr" ? "Detay yükleniyor..." : "Loading details..." }}
+                </p>
+                <div class="sf-taskList mt-0" *ngIf="historyDetailsByPlanId[h.plan_id] as hv">
+                  <article *ngFor="let t of hv.tasks" [class]="taskCardClass(t.status)">
+                    <div class="sf-taskMeta">
+                      <div class="sf-taskDate">📅 {{ t.date_iso | date : "MMM d" }}</div>
+                      <span [class]="kindPillClass(t.kind)">{{ kindLabel(t.kind) }}</span>
+                      <span class="sf-taskState sf-taskState--done" *ngIf="t.status === 'completed'">{{ locale === "tr" ? "Tamamlandı" : "Completed" }}</span>
+                      <span class="sf-taskState sf-taskState--missed" *ngIf="t.status === 'missed'">{{ locale === "tr" ? "Kaçırıldı" : "Missed" }}</span>
+                    </div>
+                    <div class="sf-taskBody">
+                      <p class="sf-taskTitle mb-0">{{ t.title }}</p>
+                      <p class="sf-taskDuration mb-0">~{{ t.minutes_estimate }} min</p>
+                    </div>
+                    <div class="sf-taskActions">
+                      <span class="badge text-bg-light border">{{ locale === "tr" ? "Salt okunur" : "Read-only" }}</span>
+                    </div>
+                  </article>
+                </div>
+                <p class="small text-danger mb-0" *ngIf="!historyViewLoading && historyDetailsByPlanId[h.plan_id] === null">
+                  {{ locale === "tr" ? "Detaylar yüklenemedi." : "Could not load details." }}
+                </p>
+              </div>
+            </article>
+          </div>
+          <ng-template #noHistory>
+            <p class="small text-muted mb-0">{{ locale === "tr" ? "Henüz tamamlanmış plan yok." : "No completed plans yet." }}</p>
+          </ng-template>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-7" id="sf-ap-output" *ngIf="leftPanelTab !== 'history'">
+    <div *ngIf="loading">
+      <p class="text-muted small">{{ locale === "tr" ? "Yükleniyor…" : "Loading…" }}</p>
+    </div>
+
+    <ng-container *ngIf="!loading && plan">
+      <div class="card border-0 shadow-sm mb-3 sf-ap__today">
+        <div class="card-body py-3">
+          <h2 class="h6 text-uppercase text-muted mb-2">{{ locale === "tr" ? "Bugün" : "Today" }} · {{ plan.today_iso }}</h2>
+          <p *ngIf="todayCardShowsNextStudyDay()" class="small text-muted mb-2">
+            <ng-container *ngIf="locale === 'tr'; else nextStudyEn">
+              Bu gün için planda bekleyen satır yok ya da bugünkü görev bitti; sıradaki bekleyen görev
+              <strong class="text-dark">{{ todayNextStudyDateLabel() }}</strong>:
+            </ng-container>
+            <ng-template #nextStudyEn>
+              No pending row for today, or today is already done. Next pending task on
+              <strong class="text-dark">{{ todayNextStudyDateLabel() }}</strong>:
+            </ng-template>
+          </p>
+          <div *ngIf="plan.today_recommendation as rec; else noToday">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+              <span [class]="kindPillClass(rec.kind)">{{ kindLabel(rec.kind) }}</span>
+              <span class="small text-muted">~{{ rec.minutes_estimate }} min</span>
+            </div>
+            <p class="mb-2 fw-semibold">{{ rec.title }}</p>
+            <div class="d-flex flex-wrap gap-2">
+              <button type="button" class="btn btn-sm btn-success" (click)="setTaskStatus(rec, 'completed')" [disabled]="busy || rec.status === 'completed'">
+                {{ locale === "tr" ? "✓ Tamamlandı" : "✓ Done" }}
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="setTaskStatus(rec, 'missed')" [disabled]="busy || rec.status === 'missed'">
+                {{ locale === "tr" ? "Atla" : "Skip" }}
+              </button>
+              <button type="button" class="btn btn-sm btn-light border" (click)="setTaskStatus(rec, 'pending')" [disabled]="busy || rec.status === 'pending'">
+                {{ locale === "tr" ? "Sıfırla" : "Reset" }}
+              </button>
+            </div>
+          </div>
+          <ng-template #noToday>
+            <p class="small text-muted mb-0">
+              <ng-container *ngIf="plan.study_slots_remaining === 0; else noTodayLeft">
+                {{ locale === "tr" ? "Bekleyen çalışma kalmadı." : "No pending study tasks left." }}
+              </ng-container>
+              <ng-template #noTodayLeft>
+                {{
+                  locale === "tr"
+                    ? "Bugünden itibaren gösterilecek bekleyen görev bulunamadı."
+                    : "No pending tasks from today onward."
+                }}
+              </ng-template>
+            </p>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="row g-2 mb-3">
+        <div class="col-4">
+          <div class="sf-ap__stat p-2 rounded border bg-white text-center">
+            <div class="small text-muted">{{ locale === "tr" ? "Kalan gün (deadline)" : "Days to deadline" }}</div>
+            <div class="fs-5 fw-semibold">{{ plan.days_until_deadline }}</div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="sf-ap__stat p-2 rounded border bg-white text-center">
+            <div class="small text-muted">{{ locale === "tr" ? "Kalan çalışma günü" : "Study slots left" }}</div>
+            <div class="fs-5 fw-semibold">{{ plan.study_slots_remaining }}</div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="sf-ap__stat p-2 rounded border bg-white text-center">
+            <div class="small text-muted">{{ locale === "tr" ? "Günlük saat" : "Hours / day" }}</div>
+            <div class="fs-5 fw-semibold">{{ plan.daily_hours }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body py-3">
+          <h2 class="h6 text-uppercase text-muted mb-3">{{ locale === "tr" ? "İlerleme" : "Progress" }}</h2>
+          <div class="sf-progressBarWrap mb-3" role="progressbar" [attr.aria-valuenow]="completionPercent()" aria-valuemin="0" aria-valuemax="100">
+            <div class="sf-progressBarFill" [style.width.%]="completionPercent()"></div>
+          </div>
+          <div class="sf-progressStats mb-3">
+            <div class="sf-progressStat"><strong class="text-success">{{ taskCounts().completed }}</strong> {{ locale === "tr" ? "tamamlandı" : "completed" }}</div>
+            <div class="sf-progressStat"><strong class="text-primary">{{ taskCounts().pending }}</strong> {{ locale === "tr" ? "bekliyor" : "pending" }}</div>
+            <div class="sf-progressStat"><strong class="text-danger">{{ taskCounts().missed }}</strong> {{ locale === "tr" ? "kaçırıldı" : "missed" }}</div>
+          </div>
+          <p [class]="progressToneClass()">{{ progressMessage() }}</p>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body py-3">
+          <h2 class="h6 text-uppercase text-muted mb-2">{{ locale === "tr" ? "Konu listeleri" : "Topic lists" }}</h2>
+          <div class="row g-2 small">
+            <div class="col-md-4">
+              <div class="fw-semibold text-danger mb-1">
+                {{ locale === "tr" ? "Zorlandığın konular" : "Weak topics" }}
+              </div>
+              <ul class="mb-0 ps-3" *ngIf="plan.weak_topics.length; else phEmpty">
+                <li *ngFor="let t of plan.weak_topics">{{ t }}</li>
+              </ul>
+              <ng-template #phEmpty><span class="text-muted">—</span></ng-template>
+            </div>
+            <div class="col-md-4">
+              <div class="fw-semibold text-success mb-1">
+                {{ locale === "tr" ? "Güçlü hissettiklerin" : "Strong / confident topics" }}
+              </div>
+              <ul class="mb-0 ps-3" *ngIf="plan.confident_topics.length; else psEmpty">
+                <li *ngFor="let t of plan.confident_topics">{{ t }}</li>
+              </ul>
+              <ng-template #psEmpty><span class="text-muted">—</span></ng-template>
+            </div>
+            <div class="col-md-4">
+              <div class="fw-semibold text-primary mb-1">
+                {{ locale === "tr" ? "Konu sırası / bölümler" : "Topic outline" }}
+              </div>
+              <ul class="mb-0 ps-3" *ngIf="plan.topic_outline?.length; else poEmpty">
+                <li *ngFor="let t of plan.topic_outline">{{ t }}</li>
+              </ul>
+              <ng-template #poEmpty><span class="text-muted">—</span></ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body py-3">
+          <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+            <h2 class="h6 text-uppercase text-muted mb-0">{{ locale === "tr" ? "2. Plan çıktısı" : "2. Study plan" }}</h2>
+            <details class="sf-actionsMenu">
+              <summary class="sf-actionsMenuBtn" [attr.aria-label]="locale === 'tr' ? 'Plan işlemleri' : 'Plan actions'">⋯</summary>
+              <div class="sf-actionsMenuList">
+                <button type="button" class="btn btn-sm btn-outline-success w-100" (click)="markAllDone()" [disabled]="busy || !hasCompletableTasks()">
+                  {{ locale === "tr" ? "Hepsini tamamla" : "Done all" }}
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary w-100" (click)="cancelAllDone()" [disabled]="busy || !hasCancelableTasks()">
+                  {{ locale === "tr" ? "Hepsini iptal et" : "Cancel all" }}
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger w-100" (click)="deleteEntirePlan()" [disabled]="busy">
+                  {{ locale === "tr" ? "Planı sil" : "Delete plan" }}
+                </button>
+              </div>
+            </details>
+          </div>
+          <p class="small text-muted mb-2" *ngIf="plan.study_days?.length">
+            <span class="fw-semibold">{{ locale === "tr" ? "Takvimde yalnızca şu günler:" : "Only these weekdays are scheduled:" }}</span>
+            <span *ngFor="let v of plan.study_days; let last = last"> {{ wdayLabel(v) }}<span *ngIf="!last">,</span></span>
+            <span class="d-block mt-1">
+              {{
+                locale === "tr"
+                  ? "Aradaki boşluklar hafta içi seçmediğin günlerdir; rastgele değil."
+                  : "Gaps are off-days you did not select — not random dates."
+              }}
+            </span>
+          </p>
+          <p class="small mb-2"><strong>{{ plan.course_name }}</strong> — {{ plan.goal_text }}</p>
+          <div class="sf-taskList">
+            <article *ngFor="let t of plan.tasks" [class]="taskCardClass(t.status)">
+              <div class="sf-taskMeta">
+                <div class="sf-taskDate">📅 {{ t.date_iso | date : "MMM d" }}</div>
+                <span [class]="kindPillClass(t.kind)">{{ kindLabel(t.kind) }}</span>
+                <span class="sf-taskState sf-taskState--done" *ngIf="t.status === 'completed'">{{ locale === "tr" ? "Tamamlandı" : "Completed" }}</span>
+                <span class="sf-taskState sf-taskState--missed" *ngIf="t.status === 'missed'">{{ locale === "tr" ? "Kaçırıldı" : "Missed" }}</span>
+              </div>
+              <div class="sf-taskBody">
+                <p class="sf-taskTitle mb-0">{{ t.title }}</p>
+                <p class="sf-taskDuration mb-0">~{{ t.minutes_estimate }} min</p>
+              </div>
+              <div class="sf-taskActions">
+                <button type="button" class="btn btn-sm btn-success" (click)="setTaskStatus(t, 'completed')" [disabled]="busy || t.status === 'completed'">
+                  {{ locale === "tr" ? "✓ Tamamlandı" : "✓ Done" }}
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="setTaskStatus(t, 'missed')" [disabled]="busy || t.status === 'missed'">
+                  {{ locale === "tr" ? "Atla" : "Skip" }}
+                </button>
+                <button type="button" class="btn btn-sm btn-light border" (click)="setTaskStatus(t, 'pending')" [disabled]="busy || t.status === 'pending'">
+                  {{ locale === "tr" ? "Sıfırla" : "Reset" }}
+                </button>
+              </div>
+            </article>
+          </div>
+          <div class="sf-finishPlanWrap" *ngIf="canFinishPlan()">
+            <button type="button" class="btn sf-finishPlanBtn" (click)="finishPlan()" [disabled]="busy">
+              {{ locale === "tr" ? "Planı gönder / bitir" : "Submit / finish plan" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <div *ngIf="!loading && !plan">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body py-5 text-center text-muted">
+          {{ locale === "tr" ? "Aktif plan yok. Soldan yeni bir plan oluşturabilirsin." : "No active plan. Create a new one from the left panel." }}
+        </div>
+      </div>
+    </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,505 @@
+<!-- ui: pdf-assistant | tr: pdf asistan html şablonu / en: pdf assistant html template -->
+
+<div class="pa-root">
+  <header class="pa-header">
+    <h1 class="pa-title">{{ "Assistant" }}</h1>
+    <p class="pa-sub">
+      {{ "Chat has its own tab; Summary, Explain, and Exam each keep their latest result — nothing mixes into the thread." }}
+    </p>
+  </header>
+
+  <input
+    #fileInput
+    type="file"
+    class="pa-srOnly"
+    accept="application/pdf"
+    (change)="onFileChange($event)"
+  />
+
+  <div class="pa-card app">
+    <div class="pa-shell" [class.pa-shell--compact]="!hasLocalSession">
+      <aside class="pa-aside left-panel" aria-label="Chat history">
+        <h2 class="pa-asideTitle">{{ "Chat history" }}</h2>
+
+        <div class="pa-asideScroll">
+          <p class="pa-asideEmpty" *ngIf="sortedHistory.length === 0">
+            {{ "Nothing saved yet." }}
+          </p>
+          <ul class="pa-sessList" *ngIf="sortedHistory.length > 0">
+            <li *ngFor="let s of sortedHistory">
+              <div
+                class="pa-sessRow"
+                [class.pa-sessRow--active]="activeSessionKey === s.key"
+                (click)="selectSession(s)"
+                role="button"
+                tabindex="0"
+                (keydown.enter)="selectSession(s)"
+              >
+                <span class="pa-sessIcon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="currentColor">
+                    <path
+                      d="M1.75 1h8.5c.966 0 1.75.784 1.75 1.75v5.5A1.75 1.75 0 0 1 10.25 10H7.061l-2.574 2.573A1.458 1.458 0 0 1 2 11.543V10h-.25A1.75 1.75 0 0 1 0 8.25v-5.5C0 1.784.784 1 1.75 1ZM1.5 2.75v5.5c0 .138.112.25.25.25h1a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h3.5a.25.25 0 0 0 .25-.25v-5.5a.25.25 0 0 0-.25-.25h-8.5a.25.25 0 0 0-.25.25Z"
+                    />
+                  </svg>
+                </span>
+                <div class="pa-sessMain">
+                  <span class="pa-sessName" [title]="s.filename">{{ displaySessionFilename(s.filename) }}</span>
+                  <time
+                    class="pa-sessTime"
+                    [attr.title]="s.updatedAt | date : ('MMM d, yyyy · HH:mm')"
+                  >
+                    {{ s.updatedAt | date : ('MMM d · HH:mm') }}
+                  </time>
+                </div>
+                <button
+                  type="button"
+                  class="pa-sessDel"
+                  (click)="removeSession($event, s.key)"
+                  [attr.aria-label]="'Delete'"
+                  [title]="'Delete'"
+                >
+                  <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M11 1.75V3h2.25a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1 0-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5c.966 0 1.75.784 1.75 1.75Zm-8.5 3v9.25c0 .966.784 1.75 1.75 1.75h7.5c.966 0 1.75-.784 1.75-1.75V4.75Z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <button type="button" class="pa-asideNew" (click)="newDocument()">
+          <span class="pa-asideNewPlus" aria-hidden="true">+</span>
+          {{ "New PDF" }}
+        </button>
+      </aside>
+
+      <div
+        class="pa-mainCol center-panel"
+        [class.pa-mainCol--drag]="dragOver && canAcceptPdfDrop"
+        (dragover)="onShellDragOver($event)"
+        (dragleave)="onShellDragLeave($event)"
+        (drop)="onShellDrop($event)"
+      >
+        <div class="pa-chatHeader">
+          <span class="pa-mainStatusHint" *ngIf="!hasLocalSession && !uploadLoading">
+            {{ "Drag a PDF here or upload from the bar below." }}
+          </span>
+          <div class="pa-mainStatusRow" *ngIf="hasLocalSession">
+            <span class="pa-docChip" *ngIf="uploadedName" [attr.title]="uploadedName">{{ uploadedName }}</span>
+            <span class="pa-activeBadge" [attr.title]="'Mode'">{{ labelForMode(sessionMode) }}</span>
+            <span class="small text-muted ms-2" *ngIf="showSessionCheckingHint" role="status">{{
+              i18n.t("quiz.checkingPdfSession")
+            }}</span>
+            <span class="small text-warning ms-2" *ngIf="showStaleSessionHint" role="status">{{
+              i18n.t("quiz.pdfSessionExpired")
+            }}</span>
+          </div>
+        </div>
+
+        <div class="pa-insightStrip" *ngIf="showInsightStrip" role="status">
+          <div class="pa-insightRow" *ngIf="insightWeakLine">
+            <span class="pa-insightKey">{{ "Weak" }}</span>
+            <span class="pa-insightVal">{{ insightWeakLine }}</span>
+          </div>
+          <div class="pa-insightRow" *ngIf="insightStrongLine">
+            <span class="pa-insightKey">{{ "Strong" }}</span>
+            <span class="pa-insightVal">{{ insightStrongLine }}</span>
+          </div>
+          <div class="pa-insightRow" *ngIf="insightShortTip">
+            <span class="pa-insightKey">{{ "Tip" }}</span>
+            <span class="pa-insightVal">{{ insightShortTip }}</span>
+          </div>
+        </div>
+
+        <nav class="pa-centerTabs" *ngIf="hasSession" role="tablist" [attr.aria-label]="'Main panel'">
+          <button
+            type="button"
+            class="pa-tab"
+            role="tab"
+            [class.pa-tab--on]="activeCenterTab === 'chat'"
+            [attr.aria-selected]="activeCenterTab === 'chat'"
+            (click)="setCenterTab('chat')"
+          >
+            {{ "Chat" }}
+          </button>
+          <button
+            type="button"
+            class="pa-tab"
+            role="tab"
+            [class.pa-tab--on]="activeCenterTab === 'summary'"
+            [attr.aria-selected]="activeCenterTab === 'summary'"
+            (click)="setCenterTab('summary')"
+          >
+            {{ "Summary" }}
+          </button>
+          <button
+            type="button"
+            class="pa-tab"
+            role="tab"
+            [class.pa-tab--on]="activeCenterTab === 'explain'"
+            [attr.aria-selected]="activeCenterTab === 'explain'"
+            (click)="setCenterTab('explain')"
+          >
+            {{ "Explain" }}
+          </button>
+          <button
+            type="button"
+            class="pa-tab"
+            role="tab"
+            [class.pa-tab--on]="activeCenterTab === 'exam'"
+            [attr.aria-selected]="activeCenterTab === 'exam'"
+            (click)="setCenterTab('exam')"
+          >
+            {{ "Exam" }}
+          </button>
+        </nav>
+
+        <div class="pa-centerBody content-area">
+          <div *ngIf="!hasSession" class="pa-messages pa-messages--solo" role="region" [attr.aria-label]="'Assistant'">
+            <div class="pa-messagesInner">
+              <div class="pa-empty" *ngIf="!uploadLoading">
+                <div class="pa-emptyCard">
+                  <div class="pa-emptyIcon" aria-hidden="true">S</div>
+                  <p class="pa-emptyTitle">{{ "Assistant ready" }}</p>
+                  <p class="pa-emptyText">
+                    {{ "Upload a PDF to open chat, summary, and study tabs here." }}
+                  </p>
+                  <p class="pa-emptySub">
+                    {{ "Use the “Upload PDF” button below to get started." }}
+                  </p>
+                </div>
+              </div>
+              <div class="pa-empty" *ngIf="uploadLoading">
+                <div class="pa-emptyCard">
+                  <div class="pa-spinner" aria-hidden="true"></div>
+                  <p class="pa-emptyTitle">{{ "Processing…" }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            *ngIf="hasSession && activeCenterTab === 'chat'"
+            #threadRef
+            class="pa-messages"
+            role="log"
+            aria-live="polite"
+            [attr.aria-label]="'Chat messages'"
+            (scroll)="onThreadScroll()"
+          >
+            <div #threadContentRef class="pa-messagesInner">
+              <div class="pa-chatWelcome" *ngIf="tutorMessages.length === 0">
+                <p class="pa-chatWelcomeKicker">{{ "For this document" }}</p>
+                <h3 class="pa-chatWelcomeTitle">{{ "How can I help you?" }}</h3>
+                <p class="pa-chatWelcomeSub">
+                  {{ "Pick a starting point or type your own question. Summary and exam notes stay on their own tabs." }}
+                </p>
+                <div class="pa-chatChipRow" role="group" [attr.aria-label]="'Quick starters'">
+                  <button type="button" class="pa-chatChip" (click)="runStarterAction('ask_pdf')">
+                    {{ "Ask about this PDF" }}
+                  </button>
+                  <button type="button" class="pa-chatChip" (click)="runStarterAction('quick_summary')">
+                    {{ "Quick summary" }}
+                  </button>
+                  <button type="button" class="pa-chatChip" (click)="runStarterAction('explain_simple')">
+                    {{ "Explain simply" }}
+                  </button>
+                  <button type="button" class="pa-chatChip" (click)="runStarterAction('quiz')">
+                    {{ "Start quiz" }}
+                  </button>
+                </div>
+                <p class="pa-chatHint pa-chatHint--soft pa-chatWelcomeFoot">
+                  {{ "Chat stays here. Use the right panel to choose mode and level, then Apply to refresh Summary, Explain, or Exam." }}
+                </p>
+              </div>
+              <div *ngFor="let m of tutorMessages" class="pa-bubbleRow" [class.pa-bubbleRow--user]="m.role === 'user'">
+                <div class="pa-bubble" [class.pa-bubble--user]="m.role === 'user'" [class.pa-bubble--ai]="m.role !== 'user'">
+                  <span class="pa-bubbleAuthor">{{ m.role === "user" ? "You" : "StudyFlow" }}</span>
+                  <div
+                    class="pa-bubbleInsight"
+                    *ngIf="showInsightStrip && m.role !== 'user' && lastAssistantMessage === m"
+                    role="note"
+                  >
+                    <span class="pa-bubbleInsightLine" *ngIf="insightWeakLine">
+                      <span class="pa-bubbleInsightK">{{ "Weak" }}</span>
+                      {{ insightWeakLine }}
+                    </span>
+                    <span class="pa-bubbleInsightSep" *ngIf="insightWeakLine && insightStrongLine" aria-hidden="true">·</span>
+                    <span class="pa-bubbleInsightLine" *ngIf="insightStrongLine">
+                      <span class="pa-bubbleInsightK">{{ "Strong" }}</span>
+                      {{ insightStrongLine }}
+                    </span>
+                    <span class="pa-bubbleInsightSep" *ngIf="(insightWeakLine || insightStrongLine) && insightShortTip" aria-hidden="true">·</span>
+                    <span class="pa-bubbleInsightLine" *ngIf="insightShortTip">
+                      <span class="pa-bubbleInsightK">{{ "Tip" }}</span>
+                      {{ insightShortTip }}
+                    </span>
+                  </div>
+                  <div class="pa-bubbleText pa-msgText" *ngIf="m.role === 'user'">{{ m.content }}</div>
+                  <div class="pa-bubbleText pa-msgText pa-msgText--rich" *ngIf="m.role !== 'user'" [innerHTML]="m.content | assistantHtml"></div>
+                </div>
+              </div>
+              <div *ngIf="chatLoading" class="pa-bubbleRow">
+                <div class="pa-bubble pa-bubble--ai pa-bubble--typing">
+                  <span class="pa-bubbleAuthor">StudyFlow</span>
+                  <span class="pa-typingWrap">
+                    <span class="pa-typingText">Typing...</span>
+                    <span class="pa-typing" aria-hidden="true"><span></span><span></span><span></span></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="hasSession && activeCenterTab === 'summary'" class="pa-modePane pa-modePane--summary" role="tabpanel">
+            <div class="pa-modePaneTop">
+              <span class="pa-modeBadge pa-modeBadge--summary">{{ labelForMode("quick_summary") }}</span>
+            </div>
+            <div class="pa-modeInsightMicro" *ngIf="insightWeakLine || insightStrongLine || insightShortTip">
+              <div class="pa-mimRow" *ngIf="insightWeakLine">
+                <span class="pa-mimK">{{ "Weak" }}</span>
+                <span class="pa-mimV">{{ insightWeakLine }}</span>
+              </div>
+              <div class="pa-mimRow" *ngIf="insightStrongLine">
+                <span class="pa-mimK">{{ "Strong" }}</span>
+                <span class="pa-mimV">{{ insightStrongLine }}</span>
+              </div>
+              <div class="pa-mimRow" *ngIf="insightShortTip">
+                <span class="pa-mimK">{{ "Tip" }}</span>
+                <span class="pa-mimV">{{ insightShortTip }}</span>
+              </div>
+            </div>
+            <div
+              class="pa-modePaneInner pa-msgText pa-msgText--rich pa-studyProse"
+              *ngIf="summaryOutput"
+              [innerHTML]="summaryOutput | assistantHtml"
+            ></div>
+            <p class="pa-modePaneEmpty" *ngIf="!summaryOutput && !applyDemoLoading">
+              {{ "Choose Quick Summary on the right and Apply to see the latest result here." }}
+            </p>
+            <div
+              *ngIf="applyDemoLoading && sessionMode === 'quick_summary' && !summaryOutput"
+              class="pa-modePaneTyping"
+              aria-live="polite"
+            >
+              <span class="pa-typingWrap">
+                <span class="pa-typingText">Typing...</span>
+                <span class="pa-typing" aria-hidden="true"><span></span><span></span><span></span></span>
+              </span>
+            </div>
+          </div>
+
+          <div *ngIf="hasSession && activeCenterTab === 'explain'" class="pa-modePane pa-modePane--explain" role="tabpanel">
+            <div class="pa-modePaneTop">
+              <span class="pa-modeBadge pa-modeBadge--explain">{{ labelForMode("explain_simple") }}</span>
+            </div>
+            <div class="pa-modeInsightMicro" *ngIf="insightWeakLine || insightStrongLine || insightShortTip">
+              <div class="pa-mimRow" *ngIf="insightWeakLine">
+                <span class="pa-mimK">{{ "Weak" }}</span>
+                <span class="pa-mimV">{{ insightWeakLine }}</span>
+              </div>
+              <div class="pa-mimRow" *ngIf="insightStrongLine">
+                <span class="pa-mimK">{{ "Strong" }}</span>
+                <span class="pa-mimV">{{ insightStrongLine }}</span>
+              </div>
+              <div class="pa-mimRow" *ngIf="insightShortTip">
+                <span class="pa-mimK">{{ "Tip" }}</span>
+                <span class="pa-mimV">{{ insightShortTip }}</span>
+              </div>
+            </div>
+            <div
+              class="pa-modePaneInner pa-msgText pa-msgText--rich pa-studyProse"
+              *ngIf="explainOutput"
+              [innerHTML]="explainOutput | assistantHtml"
+            ></div>
+            <p class="pa-modePaneEmpty" *ngIf="!explainOutput && !applyDemoLoading">
+              {{ "Use Explain Simply + Apply; the latest explanation stays here." }}
+            </p>
+            <div
+              *ngIf="applyDemoLoading && sessionMode === 'explain_simple' && !explainOutput"
+              class="pa-modePaneTyping"
+              aria-live="polite"
+            >
+              <span class="pa-typingWrap">
+                <span class="pa-typingText">Typing...</span>
+                <span class="pa-typing" aria-hidden="true"><span></span><span></span><span></span></span>
+              </span>
+            </div>
+          </div>
+
+          <div *ngIf="hasSession && activeCenterTab === 'exam'" class="pa-modePane pa-modePane--exam" role="tabpanel">
+            <div class="pa-modePaneTop">
+              <span class="pa-modeBadge pa-modeBadge--exam">{{ labelForMode("exam_focus") }}</span>
+            </div>
+            <div class="pa-modeInsightMicro" *ngIf="insightWeakLine || insightStrongLine || insightShortTip">
+              <div class="pa-mimRow" *ngIf="insightWeakLine">
+                <span class="pa-mimK">{{ "Weak" }}</span>
+                <span class="pa-mimV">{{ insightWeakLine }}</span>
+              </div>
+              <div class="pa-mimRow" *ngIf="insightStrongLine">
+                <span class="pa-mimK">{{ "Strong" }}</span>
+                <span class="pa-mimV">{{ insightStrongLine }}</span>
+              </div>
+              <div class="pa-mimRow" *ngIf="insightShortTip">
+                <span class="pa-mimK">{{ "Tip" }}</span>
+                <span class="pa-mimV">{{ insightShortTip }}</span>
+              </div>
+            </div>
+            <div
+              class="pa-modePaneInner pa-msgText pa-msgText--rich pa-studyProse"
+              *ngIf="examOutput"
+              [innerHTML]="examOutput | assistantHtml"
+            ></div>
+            <p class="pa-modePaneEmpty" *ngIf="!examOutput && !applyDemoLoading">
+              {{ "Use Exam Focus + Apply to refresh exam-style notes here." }}
+            </p>
+            <div
+              *ngIf="applyDemoLoading && sessionMode === 'exam_focus' && !examOutput"
+              class="pa-modePaneTyping"
+              aria-live="polite"
+            >
+              <span class="pa-typingWrap">
+                <span class="pa-typingText">Typing...</span>
+                <span class="pa-typing" aria-hidden="true"><span></span><span></span><span></span></span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <p class="pa-inlineError" *ngIf="error" role="alert">{{ error }}</p>
+
+        <div class="pa-composer chat-input">
+          <div class="pa-composerTop">
+            <button type="button" class="pa-uploadBtn" (click)="fileInput.click()" [disabled]="uploadLoading || chatLoading">
+              <svg class="pa-uploadBtnIcon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"
+                />
+                <path
+                  d="M11.78 4.72a.75.75 0 0 1-1.06 0L8.75 2.56v9.69a.75.75 0 0 1-1.5 0V2.56L5.28 4.72a.75.75 0 0 1-1.06-1.06l3.25-3.25a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06Z"
+                />
+              </svg>
+              {{ "Upload PDF" }}
+            </button>
+            <button type="button" class="pa-iconTextBtn" *ngIf="!hasSession" (click)="openQuizModal()" [title]="'Quiz settings'">
+              {{ "Quiz settings" }}
+            </button>
+            <button type="button" class="pa-iconTextBtn" *ngIf="hasSession" (click)="newDocument()" [disabled]="chatLoading">
+              {{ "New PDF" }}
+            </button>
+            <button type="button" class="pa-cancelChatBtn" *ngIf="chatLoading" (click)="cancelChat()">
+              {{ "Stop" }}
+            </button>
+          </div>
+          <div class="pa-composerTrack" *ngIf="!hasSession || activeCenterTab === 'chat'">
+            <textarea
+              class="pa-pillInput"
+              rows="1"
+              [(ngModel)]="draft"
+              (keydown)="onComposerKeydown($event)"
+              [placeholder]="composerPlaceholder"
+              [disabled]="!hasSession || chatLoading || applyDemoLoading || sessionMode === 'quiz_mode'"
+            ></textarea>
+            <button
+              type="button"
+              class="pa-sendFab"
+              *ngIf="hasSession"
+              (click)="sendMessage()"
+              [disabled]="!canSend"
+              [attr.aria-label]="'Send'"
+            >
+              <svg class="pa-sendFabSvg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="pa-rightPanel right-panel" aria-label="Study mode and level">
+        <h2 class="pa-rightTitle">{{ "Study settings" }}</h2>
+
+        <div class="pa-rightBody" *ngIf="hasSession">
+          <div class="pa-rightField">
+            <span class="pa-rightLabel">{{ "Mode" }}</span>
+            <div class="pa-rightChipCol">
+              <button
+                type="button"
+                *ngFor="let m of modeOptions"
+                class="pa-rightChip"
+                [class.pa-rightChip--on]="draftSessionMode === m.id"
+                (click)="pickDraftMode(m.id)"
+              >
+                <span class="pa-rightChipLabel">{{ m.label }}</span>
+                <span class="pa-rightChipBeta" *ngIf="m.id === 'quick_summary' || m.id === 'explain_simple' || m.id === 'exam_focus'">Beta</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="pa-rightApplyRow" *ngIf="draftSessionMode !== 'quiz_mode'">
+            <button
+              type="button"
+              class="pa-rightApplyBtn"
+              [class.pa-rightApplyBtn--busy]="applyDemoLoading"
+              [disabled]="!hasLocalSession || !hasServerPdf || !studySettingsDirty || applyDemoLoading"
+              (click)="applyStudySettings()"
+            >
+              {{ applyDemoLoading ? "Working…" : "Apply settings" }}
+            </button>
+            <p class="pa-rightApplyOk" *ngIf="settingsAppliedMessage">{{ settingsAppliedMessage }}</p>
+          </div>
+
+          <div class="pa-rightQuizRow" *ngIf="sessionMode === 'quiz_mode' || draftSessionMode === 'quiz_mode'">
+            <div class="pa-rightQuizActions">
+              <button
+                type="button"
+                class="pa-rightQuizBtn"
+                [disabled]="!canGenerateQuiz"
+                (click)="generateQuizFromSidebar()"
+              >
+                {{ quizGenState === "loading" ? "Generating…" : "Generate quiz" }}
+              </button>
+              <button type="button" class="pa-rightQuizSettings" (click)="openQuizModal()" [title]="'Question count'">
+                ⚙
+              </button>
+            </div>
+            <p class="pa-rightQuizHint" *ngIf="quizGenState === 'loading'">
+              Ollama ile üretim genelde 1–4 dakika sürebilir. Uzun sürerse terminalde <code>ollama serve</code> ve
+              modelin yüklü olduğundan emin olun.
+            </p>
+          </div>
+        </div>
+
+        <div class="pa-rightPlaceholder" *ngIf="!hasSession">
+          <p>
+            {{ "Upload a PDF; set mode and level here. Use the Quiz tab for quizzes." }}
+          </p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="pa-modalBackdrop" *ngIf="quizModalOpen" (click)="closeQuizModal()"></div>
+  <div class="pa-modal" *ngIf="quizModalOpen" role="dialog" aria-modal="true">
+    <div class="pa-modalCard" (click)="$event.stopPropagation()">
+      <h2 class="pa-modalTitle">{{ "Quiz settings" }}</h2>
+      <p class="pa-modalHint">
+        {{ "Choose question count manually (1-15). Quiz generation uses this exact target." }}
+      </p>
+      <div class="pa-modalRow">
+        <label class="pa-modalLabel" for="paNumQ">{{ "Questions" }}</label>
+        <input id="paNumQ" type="number" class="pa-modalNum" min="1" max="15" [(ngModel)]="numQuestions" />
+      </div>
+      <div class="pa-modalActions">
+        <button type="button" class="pa-btnSecondary" (click)="closeQuizModal()">
+          {{ "Close" }}
+        </button>
+        <button type="button" class="pa-btnPrimary" (click)="applyQuizModal()">
+          {{ "Done" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,425 @@
+/* ui: user-profile | tr: profil css stilleri / en: user profile css styles */
+
+.sf-profile {
+  max-width: 94rem;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.35rem 0 0.9rem;
+}
+
+.sf-profileCard {
+  background: linear-gradient(180deg, #fefeff 0%, #f6f3ff 100%); /*profil sayfası ana kart arka plan*/
+  border: 1px solid rgba(99, 102, 241, 0.15); /*profil ana kart çerçeve*/
+  border-radius: 1.35rem;
+  box-shadow: 0 20px 48px rgba(76, 51, 152, 0.1);
+  padding: 2rem 2.1rem;
+}
+
+.sf-profileHero {
+  display: flex;
+  align-items: center;
+  gap: 1.3rem;
+  padding: 1.15rem 1.2rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(241, 237, 255, 0.88)); /*üst hero (avatar + isim) arka plan*/
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: 1.05rem;
+  margin-bottom: 1.45rem;
+}
+
+.sf-profileIdentity {
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .sf-profileCard {
+    padding: 2.2rem 2.5rem;
+  }
+}
+
+.sf-profileTitle {
+  font-size: 1.72rem;
+  font-weight: 700;
+  color: #34285f; /*profil başlık (isim) yazı rengi*/
+  letter-spacing: -0.015em;
+  margin-bottom: 0.18rem;
+}
+
+.sf-profileEmail {
+  margin: 0;
+  color: #5e5180; /*e-posta satırı rengi*/
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.sf-profileLead {
+  color: #706491; /*alt açıklama metni rengi*/
+  font-size: 0.84rem;
+  margin: 0.28rem 0 0;
+}
+
+.sf-profileGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 1.35rem;
+  align-items: stretch;
+}
+
+.sf-profileRight {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sf-infoCard {
+  background: #fff; /*sol/sağ bilgi kutuları (foto, bio, güvenlik)*/
+  border-radius: 0.95rem;
+  border: 1px solid rgba(99, 102, 241, 0.13);
+  padding: 1.2rem 1.15rem 1.3rem;
+  box-shadow: 0 8px 24px rgba(87, 70, 146, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.sf-infoCard:hover {
+  border-color: rgba(99, 102, 241, 0.24);
+  box-shadow: 0 14px 30px rgba(87, 70, 146, 0.14);
+}
+
+.sf-infoCard--security {
+  grid-column: 1 / -1;
+}
+
+.sf-boxTitle {
+  font-size: 0.96rem;
+  margin: 0 0 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #3f336b; /*kutu başlıkları (PROFILE PHOTO, SECURITY vb.)*/
+}
+
+.sf-securityHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.sf-actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.sf-inlineAction {
+  min-height: 2.05rem;
+  padding-inline: 0.9rem;
+}
+
+.sf-profileAvatar {
+  width: clamp(7.2rem, 10vw, 8.8rem);
+  height: clamp(7.2rem, 10vw, 8.8rem);
+  border-radius: 999px;
+  background: linear-gradient(145deg, #e0e7ff, #c7d2fe); /*avatar daire arka plan (foto yokken)*/
+  border: 2px solid rgba(99, 102, 241, 0.32); /*avatar çerçeve*/
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.16);
+}
+
+.sf-profileAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transform-origin: center;
+  transition: transform 0.12s ease;
+}
+
+.sf-profileAvatarFallback {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4f46e5; /*avatar harf fallback rengi*/
+  user-select: none;
+}
+
+.sf-profileFileInput {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sf-profileHint {
+  font-size: 0.8rem;
+  color: #7d72a0;
+  margin: 0.12rem 0 0;
+}
+
+.sf-pencilIcon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.sf-filePill {
+  max-width: 100%;
+  padding: 0.35rem 0.55rem;
+  border-radius: 0.6rem;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  color: #5b4f7a;
+  font-size: 0.76rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sf-cropLabel {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #605582;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sf-cropRange {
+  width: 100%;
+  accent-color: #6d28d9;
+}
+
+.sf-positionPanel {
+  margin-top: 0.25rem;
+  padding: 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(99, 102, 241, 0.16);
+  background: #faf9ff;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.sf-photoNotice {
+  margin: 0.15rem 0 0;
+  color: #2f7a52;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.sf-successNotice {
+  margin: 0.2rem 0 0;
+  color: #2f7a52;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.sf-profileFields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.55rem;
+}
+
+.sf-readonlyLine {
+  margin-top: 0.45rem;
+  border: 1px solid rgba(99, 102, 241, 0.14);
+  border-radius: 0.72rem;
+  background: #f8f6ff;
+  padding: 0.52rem 0.7rem;
+}
+
+.sf-readonlyKey {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7a72a2;
+}
+
+.sf-readonlyVal {
+  display: block;
+  margin-top: 0.1rem;
+  color: #4f466e;
+  font-size: 0.92rem;
+}
+
+.sf-profileLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #5a4f78;
+  margin-top: 0.65rem;
+  margin-bottom: 0.2rem;
+}
+
+.sf-profileLabel:first-of-type {
+  margin-top: 0;
+}
+
+.sf-profileInput {
+  border-radius: 0.72rem;
+  border: 1px solid rgba(99, 102, 241, 0.18); /*form input çerçeve*/
+  background: #fefeff; /*form input arka plan*/
+  font-size: 0.94rem;
+  min-height: 2.55rem;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.sf-profileInput:focus {
+  border-color: #7c3aed; /*input focus çerçeve*/
+  box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.13);
+  background: #fff;
+}
+
+.sf-bioInput {
+  min-height: 6.6rem;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.sf-profileInput:read-only {
+  background: #f3f1fa;
+  color: #4b3f6b;
+  cursor: default;
+}
+
+.sf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.42rem;
+  padding: 0.48rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.65rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.sf-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sf-btnPrimary {
+  background: linear-gradient(135deg, #7f3df0, #6327d4); /*Save / kaydet ana buton*/
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(109, 40, 217, 0.28);
+}
+
+.sf-btnPrimary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(109, 40, 217, 0.32);
+}
+
+.sf-btnGhost {
+  background: #fcfbff; /*iptal / ikincil buton*/
+  color: #5b4f7a;
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.sf-btnGhost:hover:not(:disabled) {
+  background: #f5f2ff;
+}
+
+.sf-btnDanger {
+  background: #fff; /*hesap sil / tehlikeli işlem butonu*/
+  color: #b91c1c;
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08);
+}
+
+.sf-btnDanger:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.sf-profilePassword {
+  margin-top: 0.6rem;
+  padding: 1rem;
+  background: #f8f6ff; /*şifre değiştir bölümü arka plan*/
+  border-radius: 0.85rem;
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.sf-profilePassword .sf-btn {
+  align-self: stretch;
+  margin-top: 0.75rem;
+}
+
+.sf-btn--block {
+  width: 100%;
+}
+
+/* Delete confirmation modal */
+.sf-modalBack {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(32, 26, 56, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(3px);
+}
+
+.sf-modal {
+  max-width: 24rem;
+  width: 100%;
+  background: #faf8ff; /*silme onay modal kutusu*/
+  border-radius: 1.1rem;
+  padding: 1.5rem 1.4rem 1.35rem;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+.sf-modalTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2d2654;
+  margin: 0 0 0.5rem;
+}
+
+.sf-modalBody {
+  font-size: 0.88rem;
+  color: #5c5270;
+  margin: 0 0 1rem;
+  line-height: 1.45;
+}
+
+.sf-modalActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+@media (max-width: 900px) {
+  .sf-profileHero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sf-profileGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sf-actionRow {
+    flex-wrap: wrap;
+  }
+
+  .sf-actionRow .sf-btn {
+    flex: 1 1 100%;
+  }
+
+}

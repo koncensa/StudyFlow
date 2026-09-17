@@ -1,0 +1,210 @@
+/* ui: pomodoro-shared | tr: pomodoro ortak css — sayfa + widget paylaşır / en: pomodoro shared css used by page and widget */
+
+/**
+ * Pomodoro UI - renk ve tipografi StudyFlow :root (--sf-*) ile hizali.
+ */
+
+.sf-pomoCard {
+  border-radius: 16px;
+  padding: 0.65rem 0.75rem 0.75rem;
+  background: var(--sf-surface, #ffffff); /*pomodoro kart arka plan rengi (widget + sayfa)*/
+  border: 1px solid var(--sf-border, #e5e7eb) !important; /*pomodoro kart çerçeve rengi*/
+  box-shadow:
+    0 8px 22px rgba(15, 23, 42, 0.04),
+    0 0 0 1px rgba(99, 102, 241, 0.06);
+}
+
+.sf-pomoCardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  margin-bottom: 0.15rem;
+}
+
+.sf-pomoTitle {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sf-muted, #64748b); /*üst başlık POMODORO yazı rengi*/
+}
+
+.sf-pomoMin {
+  padding: 0 !important;
+  line-height: 1;
+  min-width: auto;
+  color: var(--sf-muted, #64748b) !important; /*küçült (-) butonu yazı rengi*/
+  text-decoration: none !important;
+  border-radius: 8px;
+}
+
+.sf-pomoMin:hover {
+  color: var(--sf-primary, #6366f1) !important; /*küçült butonu hover yazı rengi*/
+  background: rgba(99, 102, 241, 0.08); /*küçült butonu hover arka plan*/
+}
+
+.sf-pomoCardBody {
+  text-align: center;
+}
+
+.sf-pomoTopic {
+  text-align: center;
+  font-size: 0.75rem;
+  margin-bottom: 0.15rem;
+  color: var(--sf-muted, #64748b); /*konu / topic satırı yazı rengi*/
+}
+
+.sf-pomoMode {
+  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--sf-primary-700, #4f46e5); /*focus / break mod etiketi rengi*/
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sf-pomoFocusOrd {
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--sf-muted, #64748b); /*1/4 focus sırası yazı rengi*/
+}
+
+.sf-pomoTime {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--sf-text, #0f172a); /*geri sayım süre (25:00) yazı rengi*/
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-top: 0.2rem;
+}
+
+.sf-pomoMeta {
+  margin-top: 0.45rem;
+  line-height: 1.45;
+  font-size: 0.8rem;
+  color: var(--sf-muted, #64748b); /*Next / Completed / Durations meta yazı rengi*/
+  text-align: center;
+}
+
+.sf-pomoMeta strong.text-body {
+  color: var(--sf-text, #0f172a); /*meta içindeki kalın değerler*/
+  font-weight: 600;
+}
+
+.sf-pomoStatus {
+  display: inline-block;
+  margin-top: 0.4rem;
+  padding: 0.14rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sf-pomoStatus--run {
+  background: rgba(99, 102, 241, 0.14); /*Running rozeti arka plan*/
+  color: var(--sf-primary-700, #4f46e5); /*Running rozeti yazı rengi*/
+  border: 1px solid rgba(99, 102, 241, 0.28); /*Running rozeti çerçeve*/
+}
+
+.sf-pomoStatus--pause {
+  background: rgba(148, 163, 184, 0.15); /*Paused rozeti arka plan*/
+  color: var(--sf-muted, #64748b); /*Paused rozeti yazı rengi*/
+  border: 1px solid var(--sf-border, #e5e7eb); /*Paused rozeti çerçeve*/
+}
+
+.sf-pomoBtnRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  margin-top: 0.7rem;
+}
+
+/* Bootstrap secondary -> indigo ailesi (ana uygulama ile uyum) */
+.sf-pomoCard .btn-outline-secondary {
+  border-radius: 10px;
+  font-weight: 600;
+  border-color: #c7d2fe; /*Pause butonu çerçeve rengi*/
+  color: var(--sf-primary, #6366f1); /*Pause butonu yazı rengi*/
+  background: rgba(255, 255, 255, 0.9); /*Pause butonu arka plan*/
+}
+
+.sf-pomoCard .btn-outline-secondary:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.1); /*Pause hover arka plan*/
+  border-color: var(--sf-primary, #6366f1); /*Pause hover çerçeve*/
+  color: var(--sf-primary-700, #4f46e5); /*Pause hover yazı*/
+}
+
+.sf-pomoCard .btn-outline-secondary:disabled {
+  opacity: 0.45;
+}
+
+.sf-pomoCard .btn-outline-primary {
+  border-radius: 10px;
+  font-weight: 600;
+  border-color: var(--sf-primary, #6366f1); /*outline primary çerçeve*/
+  color: var(--sf-primary, #6366f1); /*outline primary yazı*/
+}
+
+.sf-pomoCard .btn-outline-primary:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.1); /*outline primary hover arka plan*/
+  border-color: var(--sf-primary-700, #4f46e5); /*outline primary hover çerçeve*/
+  color: var(--sf-primary-700, #4f46e5); /*outline primary hover yazı*/
+}
+
+.sf-pomoCard .btn-link.text-muted {
+  color: var(--sf-muted, #64748b) !important; /*Reset link yazı rengi*/
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.sf-pomoCard .btn-link.text-muted:hover:not(:disabled) {
+  color: var(--sf-primary, #6366f1) !important; /*Reset hover yazı*/
+  background: rgba(99, 102, 241, 0.06); /*Reset hover arka plan*/
+}
+
+.sf-pomoCard .btn-sm.sf-btnPrimary {
+  border-radius: 10px;
+  font-weight: 600; /*Start / Resume ana buton (sf-btnPrimary global stiller)*/
+}
+
+.sf-pomoLinkMuted {
+  font-size: 0.7rem;
+  color: var(--sf-muted, #64748b) !important; /*soluk link yazı rengi*/
+  text-decoration: none !important;
+  font-weight: 600;
+}
+
+.sf-pomoLinkMuted:hover {
+  color: var(--sf-primary, #6366f1) !important; /*soluk link hover rengi*/
+}
+
+.sf-pomoFieldLab {
+  min-width: 2.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--sf-muted, #64748b); /*özel süre alanı etiket (dk) rengi*/
+}
+
+.sf-pomoCustom {
+  text-align: left;
+  margin-top: 0.35rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(99, 102, 241, 0.12); /*özel süre bölümü üst çizgi*/
+}
+
+.sf-pomoCustom .form-control-sm {
+  max-width: 5rem;
+  border-color: #e2e8f0; /*özel dakika input çerçeve*/
+  border-radius: 10px;
+}
+
+.sf-pomoCustom .form-control-sm:focus {
+  border-color: #a5b4fc; /*özel dakika input focus çerçeve*/
+  box-shadow: 0 0 0 0.2rem rgba(93, 95, 239, 0.12); /*özel dakika input focus halka*/
+}

@@ -1,0 +1,235 @@
+/* Global stiller: tüm uygulama (angular.json styles). Renk token’ları :root; sayfa kabuğu app.component.css */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap");
+
+/* —— Tasarım token’ları (var(--sf-*)) —— bileşenlerde aynı isimle kullanılır */
+:root {
+  --sf-bg: #f5f6f8; /*asistanda pdf dosyası rengi gösterme*/
+  --sf-surface: #ffffff;/*küçük pomodoronun rengi*/
+  --sf-border: #e5e7eb;/* anasayfadaki kartların ve navbar çizgisi,new pdf , büyük pomodoro etrafı, badge de kart çizgilerin kalınlık rengi*/
+  --sf-text: #0f172a;/* pomodoronun 25:00 dk rengi asistanda pdf dosya gösterme yazı rengi , how can ı help u, pdf gösterme yazısı, assistant yazısı */
+  --sf-muted: #64748b; /*küçük pomodoronun yazılarının rengi*/
+  --sf-primary: #6366f1; /*asistanda new pdf yazı ve background, upload pdf, personalized mini quiz yazı , goal inputs, büyük pomodoro rengi*/
+  --sf-primary-700: #4f46e5; /*pomodoronun focus yazısı rengi*/
+  --sf-success: #16a34a; /*başarı rengi*/
+  --sf-warning: #f59e0b; /*uyarı rengi*/
+  --sf-danger: #dc2626; /*error*/
+  --sf-font-sans: "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; /*navbar, menü, gövde yazı tipi*/
+  --sf-font-serif: "Playfair Display", Georgia, "Times New Roman", serif; /*sayfa başlıkları (Playfair)*/
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--sf-font-sans); /*navbar menü yazı tipi — app.component’ten override olursa ton farkı olabilir */
+  background: #f5f6f8; /*tüm sayfa arka planı — --sf-bg ile aynı tutun; .sf-main app.component.css */
+  color: var(--sf-text); /*varsayılan metin rengi*/
+}
+
+/* Buttons — Home, Results vb. ortak .sf-btnPrimary / .sf-btnGhost */
+.sf-btnPrimary {
+  background: #6366f1; /*birincil buton dolgu (Start, Latest quiz vb.)*/
+  border: none;
+  color: #fff;    /*aktif butonlar*/
+  font-weight: 600;      /*start buton rengi , latest quiz rengi burdanda değişebilirim*/
+  padding: 0.55rem 1.35rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(93, 95, 239, 0.28);
+}
+
+.sf-btnPrimary:hover {
+  background: #4f51e0; /*birincil buton hover*/
+  color: #fff;
+}
+
+.sf-btnPrimary:disabled {
+  opacity: 0.55; /*devre dışı buton solukluğu*/
+}
+
+.sf-btnGhost {
+  background: rgba(99, 102, 241, 0.08); /*hayalet buton arka plan (Go to quiz vb.)*/
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: #6366f1;     /*Go to quiz rengi , latest rengi burdanda değişebilirim*/
+  font-weight: 600;
+  padding: 0.55rem 1.25rem;
+  border-radius: 10px;
+}
+
+.sf-btnGhost:hover {
+  background: rgba(99, 102, 241, 0.14);
+  color: #4f46e5;
+}
+
+/* PDF drop zone */
+.sf-dropWrap {   /*pdf sürükle bırak alanı*/
+  margin-top: 0.5rem;
+}
+
+.sf-dropZone {
+  border: 1px dashed #cfd4dc; /*PDF sürükle-bırak çerçeve (normal)*/
+  border-radius: 18px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  background: #fafbfc; /*drop alanı arka plan*/
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.sf-dropZone:hover,
+.sf-dropZone--active {
+  border-color: #6366f1; /*hover / dosya üzerindeyken vurgu*/
+  background: #eef2ff;
+}
+
+.sf-dropZone--busy {
+  opacity: 0.88;
+  cursor: wait;
+  pointer-events: none;
+}
+
+.sf-dropIcon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+}
+
+.sf-dropTitle {
+  font-family: var(--sf-font-serif);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0 0 0.25rem;
+  color: #0f172a; /*drop başlık rengi*/
+}
+
+.sf-dropMeta {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+
+.sf-dropFileName {
+  font-size: 0.85rem;
+  color: #475569;
+  margin: 0.75rem 0 0;
+}
+
+.sf-checklist {
+  /*Home / Assistant özellik listesi (✓ maddeler)*/
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: 0.82rem;
+  color: #4f6ae6;
+}
+
+.sf-checklist li::before {
+  content: "✓ ";
+  color: #6366f1;
+  font-weight: 700;
+}
+
+.sf-miniLabel {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8; /*form üst etiket (küçük başlık) rengi*/
+  margin-bottom: 0.35rem;
+}
+
+/* Ortak form alanları (Assistant goal input vb.) */
+.sf-select,
+.sf-input {
+  border-radius: 10px;
+  border-color: #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.sf-select:focus,
+.sf-input:focus {
+  border-color: #a5b4fc; /*odak halkası rengi*/
+  box-shadow: 0 0 0 0.2rem rgba(93, 95, 239, 0.12);
+}
+
+/* Cards (Bootstrap overrides) — tüm .card bileşenleri */
+.card {
+  border-radius: 16px;
+  border: 1px solid var(--sf-border);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+}
+
+.card-header {
+  background: var(--sf-surface);
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.btn-primary {
+  background: var(--sf-primary); /*Bootstrap birincil buton — --sf-primary token */
+  border-color: var(--sf-primary);
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: var(--sf-primary-700);
+  border-color: var(--sf-primary-700);
+}
+
+.form-control,
+.form-select {
+  border-radius: 10px;
+  border-color: #e2e8f0; /*Bootstrap input/select çerçeve*/
+}
+
+.text-muted {
+  color: var(--sf-muted) !important; /*Bootstrap .text-muted → --sf-muted */
+}
+
+@keyframes sfFade {
+  /*panel açılış animasyonu*/
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sf-panel {
+  animation: sfFade 220ms ease; /*içerik panellerinde hafif fade-in*/
+}
+
+/* Academic plan host must fill the scroll area (avoid zero-width / blank column) */
+app-academic-plan {
+  display: block;
+  width: 100%;
+  min-height: 12rem;
+}
+
+section.sf-page--plan {
+  display: block;
+  width: 100%;
+}
+
+/* Results — full mistake coaching text (no accidental clipping) */
+.sf-mistake-card {
+  overflow: visible;
+  max-height: none;
+}

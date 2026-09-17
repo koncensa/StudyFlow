@@ -1,0 +1,301 @@
+/* ui: pomodoro | tr: pomodoro tam sayfa css (shared import) / en: pomodoro full page css imports shared */
+
+@import "./pomodoro-shared.css";
+
+/* Yalnızca Pomo sekmesi — yüzen widget bu sınıfları kullanmaz, küçük kalır */
+.sf-pomoPage {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+/* Sekmedeki kart: hafif vurgu, güçlü yuvarlaklık (global .card ile çakışmayı ezer) */
+.sf-pomoPage .sf-pomoCard.sf-pomoCard--page.card {
+  border-radius: 2.5rem !important;
+  overflow: hidden;
+  padding: 1.5rem 1.65rem 1.75rem;
+  background: linear-gradient(165deg, #ffffff 0%, #f8fafc 42%, #eef2ff 100%); /*büyük pomodoro rengi*/
+  border: 1px solid var(--sf-border, #e5e7eb) !important;
+  box-shadow:
+    0 14px 40px rgba(15, 23, 42, 0.07),
+    0 0 0 1px rgba(99, 102, 241, 0.07);
+}
+
+.sf-pomoCardHead--page {
+  margin-bottom: 0.75rem;
+  text-align: left;
+}
+
+.sf-pomoPage .sf-pomoTitle {
+  font-size: 0.86rem;
+  letter-spacing: 0.11em;
+  color: var(--sf-muted, #64748b);
+}
+
+.sf-pomoLead {
+  margin-top: 0.45rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--sf-muted, #64748b); /*25/5/15 açıklama metni rengi*/
+  max-width: 36rem;
+}
+
+.sf-pomoCardBody--page {
+  text-align: left;
+}
+
+.sf-pomoPage .sf-pomoTopic {
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--sf-text, #0f172a);
+}
+
+.sf-pomoLayout {
+  display: grid;
+  gap: 1.45rem 1.85rem;
+  align-items: start;
+}
+
+@media (min-width: 640px) {
+  .sf-pomoLayout {
+    grid-template-columns: minmax(240px, 304px) 1fr;
+  }
+}
+
+/* —— Hero + ring —— */
+.sf-pomoHero {
+  justify-self: center;
+  width: 100%;
+  max-width: 304px;
+  padding: 0.5rem 0 0.25rem;
+  border-radius: 2rem;
+  position: relative;
+  transition: background 0.35s ease, box-shadow 0.35s ease;
+}
+
+.sf-pomoPhase--focus .sf-pomoHero {
+  background: radial-gradient(ellipse 90% 80% at 50% 45%, rgba(99, 102, 241, 0.12), transparent 70%); /*focus fazı halka çevresi*/
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.1);
+}
+
+.sf-pomoPhase--short_break .sf-pomoHero {
+  background: radial-gradient(ellipse 90% 80% at 50% 45%, rgba(14, 165, 233, 0.14), transparent 70%); /*kısa mola fazı arka plan*/
+  box-shadow: inset 0 0 0 1px rgba(14, 165, 233, 0.12);
+}
+
+.sf-pomoPhase--long_break .sf-pomoHero {
+  background: radial-gradient(ellipse 90% 80% at 50% 45%, rgba(168, 85, 247, 0.14), transparent 70%); /*uzun mola fazı arka plan*/
+  box-shadow: inset 0 0 0 1px rgba(168, 85, 247, 0.12);
+}
+
+.sf-pomoRingWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  max-height: min(76vw, 304px);
+  margin: 0 auto;
+}
+
+.sf-pomoRingSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 6px 16px rgba(15, 23, 42, 0.06));
+}
+
+.sf-pomoRingTrack {
+  stroke: rgba(148, 163, 184, 0.35); /*ilerleme halkası arka iz*/
+}
+
+.sf-pomoPhase--focus .sf-pomoRingProg {
+  stroke: var(--sf-primary, #6366f1); /*focus halka rengi*/
+}
+
+.sf-pomoPhase--short_break .sf-pomoRingProg {
+  stroke: #0ea5e9; /*kısa mola halka rengi*/
+}
+
+.sf-pomoPhase--long_break .sf-pomoRingProg {
+  stroke: #a855f7; /*uzun mola halka rengi*/
+}
+
+.sf-pomoRingProg {
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.35s linear, stroke 0.35s ease;
+}
+
+.sf-pomoRingCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12%;
+  text-align: center;
+}
+
+.sf-pomoTime--ring {
+  font-size: clamp(2.15rem, 8vw, 2.85rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--sf-text, #0f172a); /*halka ortasındaki süre yazısı*/
+  margin: 0;
+}
+
+.sf-pomoMode--ring {
+  margin-top: 0.35rem;
+  font-size: 0.76rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.sf-pomoAside {
+  min-width: 0;
+}
+  /*yukarda 1 s 2 gibi yazıların rengi*/
+/* —— Cycle strip —— */
+.sf-pomoStrip {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.28rem;
+  justify-content: space-between;
+  padding: 0.35rem 0.25rem;
+  background: rgba(255, 255, 255, 0.72); /*1-4 · S · L şeridi arka plan*/
+  border: 1px solid var(--sf-border, #e5e7eb);
+  border-radius: 1rem;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+.sf-pomoSeg {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  border-radius: 0.55rem;
+  padding: 0.4rem 0.12rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--sf-muted, #64748b); /*döngü segmenti (1,2,3,4,S,L) yazı rengi*/
+  background: rgba(248, 250, 252, 0.95); /*segment kutusu arka plan*/
+  border: 1px solid transparent;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.sf-pomoSegLab {
+  display: block;
+  line-height: 1.2;
+}
+
+.sf-pomoSeg--done {
+  color: #94a3b8;
+  background: rgba(241, 245, 249, 0.9);
+  border-color: rgba(226, 232, 240, 0.9);
+}
+
+.sf-pomoSeg--current {
+  color: var(--sf-primary-700, #4f46e5); /*aktif segment (şu anki adım) yazı*/
+  background: rgba(99, 102, 241, 0.14); /*aktif segment arka plan*/
+  border-color: rgba(99, 102, 241, 0.35);
+  transform: scale(1.04);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.12);
+}
+
+.sf-pomoPhase--short_break .sf-pomoSeg--current {
+  color: #0369a1;
+  background: rgba(14, 165, 233, 0.14);
+  border-color: rgba(14, 165, 233, 0.35);
+  box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.12);
+}
+
+.sf-pomoPhase--long_break .sf-pomoSeg--current {
+  color: #7e22ce;
+  background: rgba(168, 85, 247, 0.14);
+  border-color: rgba(168, 85, 247, 0.35);
+  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.12);
+}
+
+.sf-pomoSeg--up {
+  opacity: 0.92;
+}
+
+.sf-pomoStripHint {
+  margin-top: 0.35rem;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .sf-pomoStripHint {
+    text-align: left;
+  }
+}
+
+/* —— Stat tiles —— */
+.sf-pomoTiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.sf-pomoTile {
+  background: rgba(255, 255, 255, 0.85); /*Next / Done / Rhythm kutuları*/
+  border: 1px solid var(--sf-border, #e5e7eb);
+  border-radius: 1rem;
+  padding: 0.62rem 0.72rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.sf-pomoTile--wide {
+  grid-column: 1 / -1;
+}
+
+.sf-pomoTileK {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sf-muted, #64748b);
+}
+
+.sf-pomoTileV {
+  font-size: 0.93rem;
+  font-weight: 600;
+  color: var(--sf-text, #0f172a);
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.sf-pomoPage .sf-pomoStatus {
+  font-size: 0.8rem;
+  padding: 0.22rem 0.8rem;
+  margin-top: 0.85rem;
+}
+
+.sf-pomoPage .sf-pomoBtnRow {
+  margin-top: 1rem;
+  gap: 0.55rem;
+  justify-content: flex-start;
+}
+
+.sf-pomoPage .sf-pomoBtnRow .btn-sm {
+  padding: 0.62rem 1.45rem;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.sf-pomoPage .sf-pomoTip {
+  font-size: 0.93rem;
+  line-height: 1.45;
+}

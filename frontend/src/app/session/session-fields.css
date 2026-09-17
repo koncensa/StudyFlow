@@ -1,0 +1,56 @@
+/* Shared field styles for session/login and session/register forms */
+.sf-session-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sf-session-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.sf-session-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--sf-font-sans);
+  font-size: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--sf-border);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--sf-text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sf-session-input::placeholder {
+  color: #94a3b8;
+}
+
+.sf-session-input:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+.sf-session-input--invalid {
+  border-color: rgba(220, 38, 38, 0.45);
+}
+
+.sf-session-input--invalid:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.sf-session-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  min-height: 0;
+}
+
+.sf-session-hint--error {
+  color: var(--sf-danger);
+  font-weight: 500;
+}

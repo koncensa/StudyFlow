@@ -1,0 +1,494 @@
+/* ui: academic-plan | tr: akademik plan css stilleri / en: academic plan css styles */
+
+:host {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Parent app styles (.sf-mutedCopy / .sf-panelTitle) do not pierce this component */
+.sf-ap .sf-panelTitle {
+  font-family: var(--sf-font-serif, "Playfair Display", Georgia, serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  color: #0f172a;
+}
+
+.sf-mutedCopy {
+  color: #64748b; /*Goal and availability → daily blocks, weak-topic weighting, review / quiz / buffer days. yazısı*/
+  font-size: 0.9rem;
+}
+
+.sf-ap-localNav {
+  border-color: var(--sf-border, #e5e7eb) !important;
+}
+
+.sf-ap__today {
+  border-left: 4px solid #0d6efd !important;
+}
+
+.sf-goalPanel {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.sf-leftCard {
+  background: #ffffff;
+  border: 1px solid #e8e7f7;   /*soldaki kartın rengi*/
+  border-radius: 0.95rem;
+  padding: 0.95rem 1rem;
+  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.08);
+}
+
+.sf-leftCard--action {
+  padding-top: 1.05rem;
+}
+
+.sf-leftCardTitle {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;  /*soldaki kartın rengi*/
+  letter-spacing: 0.07em;
+  color: #4c3f7a;
+}
+
+.sf-field {
+  margin-bottom: 0.72rem;
+}
+
+.sf-field:last-child {
+  margin-bottom: 0;
+}
+
+.sf-fieldLabel {
+  font-size: 0.79rem;
+  font-weight: 600;
+  color: #5c4f88;
+  margin-bottom: 0.28rem;
+}
+
+.sf-modernInput {
+  border-radius: 0.72rem;
+  border: 1px solid #dcdaf5;
+  background: #fcfbff;  /*soldaki kartın iç kutu rengi*/
+  min-height: 2.58rem;
+  padding: 0.56rem 0.76rem;
+  font-size: 0.92rem;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.sf-modernInput--area {
+  min-height: 5.2rem;
+  resize: vertical;
+}
+
+.sf-modernInput:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.16);
+  background: #ffffff;
+}
+
+.sf-weekdayWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+}
+
+.sf-dayChip {
+  border: 1px solid #ddd6fe;
+  background: #faf8ff;
+  color: #5b4f7a;
+  border-radius: 999px;  /*sat sunday yazı rengi*/
+  padding: 0.35rem 0.72rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  transition: all 0.16s ease;
+}
+
+.sf-dayChip:hover:not(:disabled) {
+  border-color: #c4b5fd;
+  background: #f5f3ff;
+  transform: translateY(-1px);
+}
+
+.sf-dayChip--active {
+  color: #f5f3ff;
+  border-color: #6d28d9;
+  background: #7c3aed; /*mon tues wed thurs yazı rengi*/
+  box-shadow: inset 0 0 0 1px rgba(76, 29, 149, 0.38), 0 3px 8px rgba(76, 29, 149, 0.2);
+}
+
+.sf-dayChip:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+}
+
+.sf-goalBtn {
+  min-height: 2.7rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9); /*build replace plan butonu*/
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 10px 20px rgba(109, 40, 217, 0.26);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+}
+
+.sf-goalBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+  box-shadow: 0 14px 22px rgba(109, 40, 217, 0.34);
+}
+
+.sf-ap__stat {
+  min-height: 4.25rem;
+}
+
+.sf-kindPill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.1;
+  border: 1px solid transparent;
+}
+
+.sf-kindPill--study {
+  color: #1d4ed8;
+  background: #dbeafe; /*study yazısının rengi*/
+  border-color: #bfdbfe;
+}
+
+.sf-kindPill--review {
+  color: #7e22ce;
+  background: #f3e8ff; /*review yazısının rengi*/
+  border-color: #e9d5ff;
+}
+
+.sf-kindPill--quiz {
+  color: #92400e;
+  background: #fef3c7; /*quiz yazısının rengi*/
+  border-color: #fde68a;
+}
+
+.sf-kindPill--rest {
+  color: #374151;
+  background: #f3f4f6; /*rest yazısının rengi*/
+  border-color: #e5e7eb;
+}
+
+.sf-progressBarWrap {
+  width: 100%;
+  height: 0.72rem;
+  background: #eef2ff; /*progress çubuğu*/
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.sf-progressBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  border-radius: inherit;
+  transition: width 0.2s ease;
+}
+
+.sf-progressStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.sf-progressStat {
+  background: #fff;
+  border: 1px solid #e5e7eb;   /*completed,pending,missed rengi*/
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.7rem;
+  font-size: 0.84rem;
+}
+
+.sf-progressNote {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.75rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.sf-progressNote--good {
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+}
+
+.sf-progressNote--warn {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+.sf-progressNote--neutral {
+  color: #1e3a8a;
+  background: #dbeafe; /*youre on track yazısının rengi*/
+  border: 1px solid #bfdbfe;
+}
+
+.sf-actionsMenu {
+  position: relative;
+}
+
+.sf-actionsMenuBtn {
+  list-style: none;
+  cursor: pointer;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background: #fff; /* ... seçenek rengi*/
+  color: #374151;
+  font-weight: 700;
+}
+
+.sf-actionsMenuBtn::-webkit-details-marker {
+  display: none;
+}
+
+.sf-actionsMenuList {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  z-index: 10;
+  min-width: 10rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;   /* ... seçenek , menü tıklayinca  rengi*/
+  border-radius: 0.75rem;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  padding: 0.5rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.sf-finishPlanBtn {
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 700; /*planı bitirin rengi*/
+  font-size: 0.96rem;
+  min-height: 2.8rem;
+  padding: 0.55rem 1.3rem;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.sf-finishPlanBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 16px 28px rgba(37, 99, 235, 0.34);
+}
+
+.sf-finishPlanWrap {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed #dbe2ee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 992px) {
+  .sf-finishPlanWrap {
+    justify-content: stretch;
+  }
+
+  .sf-finishPlanBtn {
+    width: 100%;
+  }
+}
+
+.sf-taskList {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.6rem;
+}
+
+.sf-taskCard {
+  display: grid;
+  grid-template-columns: minmax(9rem, 11rem) 1fr auto;
+  gap: 0.9rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.9rem;
+  background: #fff; /*2. task kısmı study plan rengi*/
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+}
+
+.sf-taskCard--completed {
+  border-color: #86efac;
+  box-shadow: 0 8px 18px rgba(22, 163, 74, 0.12);
+}
+
+.sf-taskCard--missed {
+  border-color: #fca5a5;
+  box-shadow: 0 8px 18px rgba(239, 68, 68, 0.12);
+}
+
+.sf-taskMeta {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+}
+
+.sf-taskDate {
+  font-size: 0.78rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.sf-taskState {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.12rem 0.48rem;
+  font-size: 0.69rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.sf-taskState--done {
+  color: #166534;
+  border-color: #bbf7d0;
+  background: #dcfce7;
+}
+
+.sf-taskState--missed {
+  color: #991b1b;
+  border-color: #fecaca;
+  background: #fee2e2;
+}
+
+.sf-taskTitle {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.sf-taskDuration {
+  margin-top: 0.22rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.sf-taskActions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.sf-taskActions .btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sf-taskActions .btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+}
+
+.sf-historyList {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.sf-historyCard {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.9rem;
+  background: #fff; /*history geçmiş kart renkleri*/
+  padding: 0.85rem 0.95rem;
+}
+
+.sf-historyCard--expanded {
+  border-color: #c7d2fe;
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.12);
+}
+
+.sf-historyHead {
+  flex: 1 1 20rem;
+}
+
+.sf-historyTitle {
+  margin: 0;
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.sf-historyGoal {
+  font-size: 0.82rem;
+  color: #4b5563;
+}
+
+.sf-historyMeta {
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+.sf-historyActions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.sf-historyLatestBadge {
+  display: inline-flex;
+  margin-top: 0.45rem;
+  border-radius: 999px;
+  padding: 0.2rem 0.58rem;
+  font-size: 0.72rem; /*latest completed buton rengi*/
+  font-weight: 700;
+  color: #ffffff;
+  border: 1px solid #be185d;
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  box-shadow: 0 8px 16px rgba(190, 24, 93, 0.24);
+}
+
+.sf-historyProgress {
+  font-size: 0.76rem;
+  color: #334155;
+  background: #f8fafc; /*0/10 · 0 missed completed yazısının rengi*/
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+}
+
+.sf-historyDetailWrap {
+  width: 100%;
+  margin-top: 0.65rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed #dbe2ee;
+}
+
+@media (max-width: 992px) {
+  .sf-taskCard {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .sf-taskActions {
+    flex-wrap: wrap;
+  }
+
+  .sf-progressStats {
+    grid-template-columns: 1fr;
+  }
+}

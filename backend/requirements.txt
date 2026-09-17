@@ -1,0 +1,35 @@
+# LLM: install Ollama separately (https://ollama.com).
+# Recommended quiz model:
+#   ollama pull mistral:7b
+# Optional lighter fallback:
+#   ollama pull phi3:mini
+#
+# Quiz via OpenAI (no local Ollama): set in .env
+#   HYBRID_CLOUD_FALLBACK_ENABLED=true
+#   HYBRID_CLOUD_API_KEY=sk-...
+#   HYBRID_CLOUD_API_BASE=https://api.openai.com/v1   (optional)
+#   HYBRID_CLOUD_MODEL=gpt-4o-mini                  (optional)
+#   QUIZ_PROVIDER=openai                             (or auto + QUIZ_PREFER_OPENAI=1)
+# Optional: QUIZ_USE_LANGCHAIN=0 to skip langchain-ollama when you only use cloud.
+
+fastapi
+email-validator>=2.0.0
+httpx>=0.27.0
+ollama
+pydantic>=2.0.0
+PyMySQL
+PyPDF2
+pymupdf>=1.24.0
+bcrypt>=4.0.0
+python-dotenv>=1.0.0
+python-jose[cryptography]>=3.3.0
+python-multipart
+SQLAlchemy
+uvicorn[standard]
+langchain>=0.3.0
+langchain-community>=0.3.0
+langchain-ollama>=0.2.0
+numpy>=1.26.0
+faiss-cpu>=1.8.0
+sentence-transformers>=3.0.0
+tenacity>=8.2.0

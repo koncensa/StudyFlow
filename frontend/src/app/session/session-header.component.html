@@ -1,0 +1,9 @@
+<div class="sf-sessionHeader" *ngIf="user.hasSession(); else guest">
+  <button type="button" class="sf-sessionHeader-logout" (click)="clickLogout()">{{ "session.logout" | lang }}</button>
+</div>
+<ng-template #guest>
+  <div class="sf-sessionHeader-guest">
+    <button type="button" class="sf-sessionHeader-btn sf-sessionHeader-btn--ghost" (click)="clickLogin()">{{ "session.login" | lang }}</button>
+    <button type="button" class="sf-sessionHeader-btn sf-sessionHeader-btn--primary" (click)="clickSignUp()">{{ "session.signup" | lang }}</button>
+  </div>
+</ng-template>

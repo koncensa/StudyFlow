@@ -1,0 +1,42 @@
+/* ui: pomodoro-widget | tr: yüzen pomodoro css / en: floating pomodoro widget css */
+
+@import "./pomodoro-shared.css";
+
+.sf-pomoDock {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1040;
+  width: min(220px, calc(100vw - 2rem));
+}
+
+.sf-pomoFab {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1040;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  background: var(--sf-surface, #ffffff);
+  box-shadow:
+    0 4px 14px rgba(93, 95, 239, 0.22),
+    0 8px 24px rgba(15, 23, 42, 0.08);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--sf-primary, #6366f1);
+}
+
+.sf-pomoFab:hover {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: var(--sf-primary, #6366f1);
+}
+
+.sf-pomoFab:focus {
+  outline: none;
+  box-shadow:
+    0 4px 14px rgba(93, 95, 239, 0.22),
+    0 0 0 3px rgba(99, 102, 241, 0.25);
+}

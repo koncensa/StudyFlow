@@ -1,0 +1,187 @@
+<!-- ui: user-profile | tr: profil html şablonu / en: user profile html template -->
+
+<div class="sf-profile" *ngIf="!loadError; else loadErr">
+  <div class="sf-profileCard" *ngIf="account as a">
+    <section class="sf-profileHero">
+      <div class="sf-profileAvatar" [class.sf-profileAvatar--image]="!!displayAvatarUrl()">
+        <img *ngIf="displayAvatarUrl() as src" [src]="src" [style.transform]="avatarImageTransform()" alt="" width="112" height="112" decoding="async" />
+        <span *ngIf="!displayAvatarUrl()" class="sf-profileAvatarFallback" aria-hidden="true">{{ defaultAvatarLetter() }}</span>
+      </div>
+      <div class="sf-profileIdentity">
+        <h1 class="sf-profileTitle">{{ a.username || (i18n.lang === "tr" ? "Kullanıcı" : "User") }}</h1>
+        <p class="sf-profileEmail">{{ a.email }}</p>
+        <p class="sf-profileLead">{{ a.biography || ("profile.subtitle" | lang) }}</p>
+      </div>
+    </section>
+
+    <div class="sf-profileGrid">
+      <section class="sf-infoCard sf-infoCard--photo">
+        <h2 class="sf-boxTitle">{{ i18n.lang === "tr" ? "Profil Fotoğrafı" : "Profile Photo" }}</h2>
+        <input
+          #photoInput
+          class="sf-profileFileInput"
+          type="file"
+          accept="image/jpeg,image/jpg,image/png,.jpg,.jpeg,.png"
+          (change)="onFileChange($event)"
+        />
+        <div class="sf-filePill" *ngIf="selectedFileName">
+          {{ selectedFileName }}
+        </div>
+        <div class="sf-actionRow">
+          <button type="button" class="sf-btn sf-btnPrimary" (click)="onUpdatePhotoClick()" [disabled]="photoUploadBusy">
+            {{ photoUploadBusy ? ("profile.savingPhoto" | lang) : (i18n.lang === "tr" ? "Fotoğrafı güncelle" : "Update photo") }}
+          </button>
+          <button type="button" class="sf-btn sf-btnGhost" (click)="onEditPhotoClick()" [disabled]="photoUploadBusy || !displayAvatarUrl()">
+            {{ i18n.lang === "tr" ? "Düzenle" : "Edit" }}
+          </button>
+          <button type="button" class="sf-btn sf-btnGhost" (click)="removePhoto()" [disabled]="!canRemovePhoto() || photoUploadBusy">
+            {{ i18n.lang === "tr" ? "Kaldır" : "Remove" }}
+          </button>
+        </div>
+        <div class="sf-positionPanel" *ngIf="showPositionEditor && displayAvatarUrl()" (keydown.enter)="saveAvatarPosition()">
+          <label class="sf-cropLabel" for="sfAvatarZoom">{{ i18n.lang === "tr" ? "Yakınlaştırma" : "Zoom" }}</label>
+          <input
+            id="sfAvatarZoom"
+            class="sf-cropRange"
+            type="range"
+            min="1"
+            max="2"
+            step="0.01"
+            [ngModel]="draftAvatarZoom"
+            (ngModelChange)="onAvatarZoomChange($event)"
+          />
+          <label class="sf-cropLabel" for="sfAvatarPosX">{{ i18n.lang === "tr" ? "Sağ / Sol" : "Left / Right" }}</label>
+          <input
+            id="sfAvatarPosX"
+            class="sf-cropRange"
+            type="range"
+            min="-35"
+            max="35"
+            step="1"
+            [ngModel]="draftAvatarPosX"
+            (ngModelChange)="onAvatarPosXChange($event)"
+          />
+          <label class="sf-cropLabel" for="sfAvatarPosY">{{ i18n.lang === "tr" ? "Yukarı / Aşağı" : "Up / Down" }}</label>
+          <input
+            id="sfAvatarPosY"
+            class="sf-cropRange"
+            type="range"
+            min="-35"
+            max="35"
+            step="1"
+            [ngModel]="draftAvatarPosY"
+            (ngModelChange)="onAvatarPosYChange($event)"
+          />
+          <div class="sf-actionRow">
+            <button type="button" class="sf-btn sf-btnGhost" (click)="resetAvatarPosition()">
+              {{ i18n.lang === "tr" ? "Sıfırla" : "Reset" }}
+            </button>
+            <button type="button" class="sf-btn sf-btnGhost" (click)="cancelAvatarPositionEdit()">
+              {{ i18n.lang === "tr" ? "Vazgeç" : "Cancel" }}
+            </button>
+            <button type="button" class="sf-btn sf-btnPrimary" (click)="saveAvatarPosition()">
+              {{ i18n.lang === "tr" ? "Kaydet" : "Save" }}
+            </button>
+          </div>
+        </div>
+        <p class="sf-profileHint">{{ "profile.photoHint" | lang }}</p>
+        <p class="sf-photoNotice" *ngIf="photoNotice">{{ photoNotice }}</p>
+        <p class="text-danger small mb-0" *ngIf="photoError">{{ photoError }}</p>
+      </section>
+
+      <section class="sf-infoCard sf-infoCard--account">
+        <h2 class="sf-boxTitle">{{ i18n.lang === "tr" ? "Hesap Bilgileri" : "Account Details" }}</h2>
+        <label class="sf-profileLabel" for="sfUname">{{ "profile.username" | lang }}</label>
+        <input
+          id="sfUname"
+          type="text"
+          class="form-control sf-profileInput"
+          [(ngModel)]="usernameDraft"
+          (ngModelChange)="onNicknameDraftChange($event)"
+          maxlength="120"
+          autocomplete="username"
+          name="displayName"
+        />
+        <div class="sf-readonlyLine">
+          <span class="sf-readonlyKey">{{ "profile.email" | lang }}</span>
+          <span class="sf-readonlyVal">{{ a.email }}</span>
+        </div>
+        <label class="sf-profileLabel" for="sfBio">{{ i18n.lang === "tr" ? "Biyografi" : "Biography" }}</label>
+        <textarea
+          id="sfBio"
+          class="form-control sf-profileInput sf-bioInput"
+          [(ngModel)]="biographyDraft"
+          (ngModelChange)="onBiographyDraftChange($event)"
+          maxlength="1000"
+          rows="4"
+          name="biography"
+          [placeholder]="i18n.lang === 'tr' ? 'Kendinden kısaca bahset...' : 'Tell a bit about yourself...'"
+        ></textarea>
+        <p class="sf-profileHint">{{ "profile.emailReadonly" | lang }}</p>
+        <p class="text-danger small" *ngIf="profileError">{{ profileError }}</p>
+        <div class="sf-actionRow">
+          <button type="button" class="sf-btn sf-btnPrimary sf-btn--block" (click)="saveNickname()" [disabled]="saveNicknameBusy">
+            {{ saveNicknameBusy ? ("profile.savingProfile" | lang) : ("profile.editProfile" | lang) }}
+          </button>
+          <button type="button" class="sf-btn sf-btnGhost sf-btn--block" (click)="saveBiography()" [disabled]="saveBiographyBusy">
+            {{ saveBiographyBusy ? ("profile.savingProfile" | lang) : ("profile.saveBiography" | lang) }}
+          </button>
+        </div>
+      </section>
+
+      <section class="sf-infoCard sf-infoCard--security">
+        <h2 class="sf-boxTitle">{{ i18n.lang === "tr" ? "Güvenlik" : "Security" }}</h2>
+        <button type="button" class="sf-btn sf-btnGhost sf-btn--block" (click)="togglePasswordPanel()" [attr.aria-expanded]="showPasswordPanel">
+          {{ "profile.changePassword" | lang }}
+        </button>
+        <div class="sf-profilePassword" *ngIf="showPasswordPanel">
+          <label class="sf-profileLabel" for="sfCurPw">{{ "profile.currentPassword" | lang }}</label>
+          <input id="sfCurPw" type="password" class="form-control sf-profileInput" [(ngModel)]="currentPassword" name="curPw" autocomplete="current-password" />
+          <label class="sf-profileLabel" for="sfNewPw">{{ "profile.newPassword" | lang }}</label>
+          <input id="sfNewPw" type="password" class="form-control sf-profileInput" [(ngModel)]="newPassword" name="newPw" autocomplete="new-password" />
+          <label class="sf-profileLabel" for="sfNewPw2">{{ "profile.confirmPassword" | lang }}</label>
+          <input id="sfNewPw2" type="password" class="form-control sf-profileInput" [(ngModel)]="confirmPassword" name="newPw2" autocomplete="new-password" />
+          <p class="text-danger small" *ngIf="passwordError">{{ passwordError }}</p>
+          <button type="button" class="sf-btn sf-btnPrimary sf-btn--block" (click)="savePassword()" [disabled]="passwordSaveBusy">
+            {{ passwordSaveBusy ? ("profile.savingPassword" | lang) : ("profile.savePassword" | lang) }}
+          </button>
+        </div>
+        <p class="sf-successNotice" *ngIf="passwordNotice">{{ passwordNotice }}</p>
+        <button type="button" class="sf-btn sf-btnDanger mt-2" (click)="openDeleteModal()">
+          {{ "profile.deleteAccount" | lang }}
+        </button>
+      </section>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadErr>
+  <div class="sf-profileCard">
+    <p class="text-danger mb-0">{{ loadError }}</p>
+    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" (click)="load()">
+      {{ i18n.lang === "tr" ? "Tekrar dene" : "Try again" }}
+    </button>
+  </div>
+</ng-template>
+
+<div class="sf-modalBack" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+  <div
+    class="sf-modal"
+    (click)="$event.stopPropagation()"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="i18n.t('profile.deleteModalTitle')"
+  >
+    <h2 class="sf-modalTitle">{{ "profile.deleteModalTitle" | lang }}</h2>
+    <p class="sf-modalBody">{{ "profile.deleteModalBody" | lang }}</p>
+    <p class="text-danger small" *ngIf="deleteError">{{ deleteError }}</p>
+    <div class="sf-modalActions">
+      <button type="button" class="sf-btn sf-btnGhost" (click)="closeDeleteModal()" [disabled]="deleteBusy">
+        {{ "profile.deleteModalCancel" | lang }}
+      </button>
+      <button type="button" class="sf-btn sf-btnDanger" (click)="confirmDeleteAccount()" [disabled]="deleteBusy">
+        {{ deleteBusy ? ("profile.deleting" | lang) : ("profile.deleteModalConfirm" | lang) }}
+      </button>
+    </div>
+  </div>
+</div>

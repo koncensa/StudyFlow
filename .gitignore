@@ -1,0 +1,12 @@
+# Monorepo — ağır ve yerel dosyalar (alt klasör .gitignore’larına ek olarak)
+
+**/__pycache__/
+**/*.py[cod]
+**/venv/
+**/.venv/
+**/node_modules/
+frontend/dist/
+backend/uploads/*.pdf
+.DS_Store
+Thumbs.db
+*.log

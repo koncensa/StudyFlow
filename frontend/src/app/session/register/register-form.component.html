@@ -1,0 +1,46 @@
+<div class="sf-session-field">
+  <label class="sf-session-label" for="session-register-name">{{ "form.nameOptional" | lang }}</label>
+  <input
+    id="session-register-name"
+    type="text"
+    class="sf-session-input"
+    [ngModel]="fullName"
+    (ngModelChange)="fullNameChange.emit($event)"
+    name="sessionRegisterFullName"
+    autocomplete="name"
+    [placeholder]="'form.ph.name' | lang"
+    maxlength="120"
+  />
+</div>
+
+<div class="sf-session-field">
+  <label class="sf-session-label" for="session-register-email">{{ "form.email" | lang }}</label>
+  <input
+    id="session-register-email"
+    type="email"
+    class="sf-session-input"
+    [class.sf-session-input--invalid]="emailError"
+    [ngModel]="email"
+    (ngModelChange)="emailChange.emit($event)"
+    name="sessionRegisterEmail"
+    autocomplete="username"
+    [placeholder]="'form.ph.email' | lang"
+  />
+  <p class="sf-session-hint sf-session-hint--error" *ngIf="emailError">{{ emailError }}</p>
+</div>
+
+<div class="sf-session-field">
+  <label class="sf-session-label" for="session-register-password">{{ "form.password" | lang }}</label>
+  <input
+    id="session-register-password"
+    type="password"
+    class="sf-session-input"
+    [class.sf-session-input--invalid]="passwordError"
+    [ngModel]="password"
+    (ngModelChange)="passwordChange.emit($event)"
+    name="sessionRegisterPassword"
+    autocomplete="new-password"
+    [placeholder]="'form.ph.password' | lang"
+  />
+  <p class="sf-session-hint sf-session-hint--error" *ngIf="passwordError">{{ passwordError }}</p>
+</div>

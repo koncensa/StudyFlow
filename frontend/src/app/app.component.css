@@ -1,0 +1,971 @@
+.sf-header {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  background: rgba(255, 255, 255, 0.92); /*esas burdan değişir navbar menü rengi*/
+  border-bottom: 1px solid var(--sf-border);
+  backdrop-filter: blur(10px);
+}
+
+.sf-headerInner,
+.app-header-row {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;   /*navbar menü hiza genişlik uzunluk ayarlama */
+  justify-content: space-between;
+  gap: 0.65rem 1rem;
+  min-height: 64px;
+  padding-bottom: 0.35rem;
+}
+
+.sf-logo {
+  display: inline-flex;
+  align-items: center; /*logo hizası vs ayarlama S harfi*/
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.sf-logoMark {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6366f1, #4f46e5); /*logo renk vs ayarlama S harfi*/
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.sf-logoText {
+  font-family: var(--sf-font-sans);
+  font-weight: 600; /*logo yazısında renk vs ayarlama Studyflow yazısı S harfi logosunda*/
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: #3b4aa8;
+}
+
+.sf-headerNav,/*Menü elemanlarını düzenlemek mobilde bozulmasını engellemek için*/
+.app-main-nav {
+  display: flex; /*Menü elemanlarını yan yana dizer.*/
+  flex-wrap: nowrap; /*Menü elemanlarının alt satıra geçmesini engeller.*/
+  align-items: center;   /*Dikey olarak ortalar.*/  
+  justify-content: center; /*Menüyü yatay olarak ortalar.*/
+  gap: 0.25rem; /*boşluk*/
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto; /*Menü ekrana sığmazsa yatay kaydırma açılır.*/
+  scrollbar-width: none;
+}
+
+.sf-headerNav::-webkit-scrollbar,   /*Kaydırma çalışır ama scrollbar görünmez.*/
+.app-main-nav::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 991.98px) {
+  .sf-headerNav {
+    flex: 1 1 100%;
+    order: 3;   /*tablet mobilde nasıl calıssın onu gösterir.*/
+    justify-content: center;
+    padding-top: 0.15rem;
+    border-top: 1px solid rgba(232, 234, 239, 0.9);
+  }
+
+  .sf-headerTools {
+    margin-left: auto;
+  }
+}
+
+.sf-navLink {
+  border: none;
+  background: transparent;
+  font-family: var(--sf-font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase; /*Menü navbar yazıları home assitant falan quiz dışındakilerin rengi değişir*/
+  color: #475569;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 3px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sf-navLink:hover {
+  color: #1e293b;  /*Menü navbar yazıları home assitant falan üstüne tutunca mouse bu renk olur*/
+}
+
+.sf-navLink--active {
+  color: #6366f1;
+  border-bottom-color: #6366f1;  /*Menü navbar yazıları home bu renk olur*/
+}
+
+.sf-navLink--muted {
+  color: #cbd5e1;  /*Menü navbar yazıları home assitant falan değilde sadece quiz tabı bu renk olur*/
+  cursor: not-allowed;
+}
+
+.sf-navProfileLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  max-width: 13.5rem;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 0.72rem;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 999px;                /*Menü navbarda profilde ikon ve kullanıcı adının rengi vs */
+  margin-left: 0.15rem;
+  padding: 0.3rem 0.6rem;
+  color: #4f46e5;
+  background: #f8f7ff;
+}
+
+.sf-navProfileLink svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.sf-navProfileText {
+  max-width: 10.8rem;   /*profil yazıları*/
+  display: inline-block;
+}
+
+.sf-navProfileMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;  /*profil bilgileri*/
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.sf-navProfileLink:hover {
+  background: #ede9fe;
+  color: #4338ca;        /*Menü navbarda profilde üzerine mouse tutunca yanar */
+  border-color: rgba(99, 102, 241, 0.32);
+}
+
+.sf-navLink.sf-navProfileLink.sf-navLink--active {
+  border-bottom-color: rgba(99, 102, 241, 0.32);
+  color: #4338ca;
+}
+
+.sf-navLogoutLink {
+  color: #b91c1c;
+}
+
+.sf-navLogoutLink:hover {
+  color: #991b1b;
+}
+
+.sf-navXpPill {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #5b5fa8;
+  border: 1px solid #d8daf5;
+  border-radius: 999px;
+  padding: 0.12rem 0.42rem;
+  background: #f5f6ff;
+  line-height: 1.15;
+  max-width: 100%;
+}
+
+.sf-headerTools,
+.app-header-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.sf-langSelect {
+  font-size: 0.8rem;
+  border: 1px solid var(--sf-border);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  background: #fff;
+  color: #334155;
+}
+
+.sf-xp {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 100px;
+}
+
+.sf-xpLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.sf-xpTrack {
+  height: 6px;
+  border-radius: 999px;
+  background: #e8e9fc;
+  border: 1px solid #d8daf5;
+  overflow: hidden;
+}
+
+.sf-xpFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #a5b4fc, #6366f1);
+  transition: width 0.25s ease;
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.sf-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;  /*ANASAYFA BACKGROUNDU BURDAN DEĞİŞEBİLİR*/
+  overflow: hidden;
+  background: #f5f6f8;
+}
+
+/* Home: one outer scroll (main), not a nested scroll area inside the shell */
+.sf-main.sf-main--naturalScroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sf-page {
+  width: 100%;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.sf-badgeToast {
+  position: sticky;
+  top: 0.65rem;
+  z-index: 6;
+  margin-bottom: 0.75rem;
+  border: 1px solid #d8b4fe;
+  background: linear-gradient(140deg, #faf5ff 0%, #f3e8ff 100%);
+  color: #4c1d95;
+  border-radius: 12px;
+  padding: 0.7rem 0.85rem;
+  box-shadow: 0 6px 18px rgba(76, 29, 149, 0.12);
+}
+
+.sf-badgeToastTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.1rem;
+}
+
+.sf-badgeToastName {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.sf-badgeToastDesc {
+  font-size: 0.8rem;
+  color: #6b21a8;
+}
+
+/* Results / quiz / analysis: main column scrolls inside fixed-height shell */
+.sf-main > .sf-page.container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* With container-fluid (PDF assistant), do not cap width — inner .pa-root centers content */
+.sf-page.container-fluid {
+  max-width: none;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Home: content height drives layout — no inner scrollbar on .sf-page */
+.sf-main > .sf-page.container-fluid.sf-page--homeNatural,
+.sf-main > .sf-page.container-fluid.sf-page--progress {
+  flex: 0 0 auto;
+  overflow: visible;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+/* Progress: same as home — scroll on <main>, not a nested pane inside the shell */
+.sf-main > .sf-page.container-fluid.sf-page--homeNatural {
+  max-width: min(68rem, 100%);
+}
+
+.sf-main > .sf-page.container-fluid.sf-page--progress {
+  max-width: min(90rem, 100%);
+}
+
+/* Quiz / badges / pomo: comfortable width + scroll inside fixed app shell */
+.sf-main > .sf-page.container-fluid.sf-page--scroll,
+.sf-main > .sf-page.container-fluid.sf-page--badges {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.sf-main > .sf-page.container-fluid.sf-page--scroll {
+  max-width: min(68rem, 100%);
+}
+
+.sf-main > .sf-page.container-fluid.sf-page--badges {
+  max-width: min(90rem, 100%);
+}
+
+.sf-main > .sf-page.container-fluid.sf-page--profile {
+  overflow: visible;
+  max-width: min(96rem, 100%);
+}
+
+/* Assistant: keep scroll inside the chat shell, not the document body */
+.sf-page.sf-page--assistant {
+  overflow: hidden;
+}
+
+.sf-page.sf-page--results {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sf-pdfPage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sf-resultsShell {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 1rem;
+}
+
+.sf-quizShell {
+  max-width: 1240px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sf-quizShell .sf-panelTitle {
+  letter-spacing: -0.03em;
+}
+
+app-pdf-assistant {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sf-sectionLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 0.75rem;
+}
+
+.sf-sectionLabel--large {
+  font-size: 0.85rem;
+}
+
+.sf-badgeTile {
+  background: #f5f1fb;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e5dbf1;
+  font-size: 0.82rem;
+  height: 100%;
+}
+
+.sf-badgeTile--earned {
+  background: #f0e8f9;
+  border-color: #dacced;
+}
+
+.sf-badgeIcon {
+  display: block;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: #6d67d8;
+  margin-bottom: 0.25rem;
+}
+
+.sf-badgeTitle {
+  font-weight: 700;
+  color: #334155;
+}
+
+.sf-badgeHint {
+  font-size: 0.75rem;
+  color: #747a87;
+}
+
+.sf-pageTitle,
+.app-page-title {
+  font-family: var(--sf-font-serif);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 1.25rem;
+}
+
+.sf-pageTitleEm {
+  font-style: italic;
+  color: #4f6ae6;
+  font-weight: 600;
+}
+
+.sf-panelTitle,
+.app-section-title {
+  font-family: var(--sf-font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 1rem; /*results yazısı rengi results kısmında*/
+  color: #0f172a;
+}
+
+.sf-mutedCopy {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.sf-statCard {
+  background: #fff;
+  border: 1px solid var(--sf-border);
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+}
+
+.sf-statCardLabel {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+}
+
+.sf-statCardValue {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.sf-badgeCard {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  background: #f5f1fb;
+  border: 1px solid #e5dbf1;
+}
+
+.sf-badgeCard--earned {
+  background: #f0e8f9;
+  border-color: #dacced;
+}
+
+.sf-badgeCardIcon {
+  font-size: 0.8rem;
+  line-height: 1;
+  opacity: 1;
+  color: #6d67d8;
+  margin-top: 0.18rem;
+}
+
+.sf-badgeCard--earned .sf-badgeCardIcon {
+  opacity: 1;
+  color: #5b55d1;
+}
+
+.sf-badgeCardTitle {
+  font-weight: 650;
+  font-size: 1.02rem;
+  line-height: 1.2;
+  color: #2f3340;
+}
+
+.sf-badgeCardDesc {
+  font-size: 0.9rem;
+  color: #747a87;
+}
+
+.sf-badgeCardState {
+  margin-top: 0.45rem;
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #4f46e5;
+  background: #eef0ff;
+  border: 1px solid #d7dbff;
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem;
+}
+
+.sf-badgeCardAction {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sf-badgeCardActionText {
+  font-size: 0.8rem;
+  color: #626b80;
+}
+
+.sf-badgeGroups {
+  display: grid;
+  gap: 1.35rem;
+}
+
+.sf-badgeGroup {
+  background: transparent;
+  border: none;
+  border-radius: 18px;
+  padding: 0;
+}
+
+.sf-badgeGroupHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.7rem;
+}
+
+.sf-badgeGroupTitle {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #8a90a0;
+  margin: 0;
+}
+
+.sf-badgeGroupMeta {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #737b8c;
+  background: #f3f4f7;
+  border: 1px solid #e6e9ef;
+  border-radius: 999px;
+  padding: 0.18rem 0.55rem;
+}
+
+.sf-badgeOverview {
+  background: #fff;
+  border: 1px solid #e9edf3;
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+}
+
+.sf-badgeOverviewTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+
+.sf-badgeOverviewLabel {
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8790a2;
+}
+
+.sf-badgeOverviewValue {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #242a37;
+}
+
+.sf-badgeOverviewHint {
+  font-size: 0.82rem;
+  color: #7a8292;
+}
+
+.sf-badgeOverviewAction {
+  font-size: 0.82rem;
+  color: #687084;
+}
+
+.sf-badgeOverviewPct {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #5452b5;
+}
+
+.sf-badgeOverviewTrack {
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #eceff4;
+}
+
+.sf-badgeOverviewFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7f88ee 0%, #6059d7 100%);
+}
+
+.sf-statsBadgeHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.sf-statsBadgeCounts {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.sf-statsBadgeValue {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #252b39;
+}
+
+.sf-statsBadgePct {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #5a57be;
+}
+
+@media (max-width: 767.98px) {
+  .sf-badgeOverviewValue {
+    font-size: 1.2rem;
+  }
+
+  .sf-statsBadgeHead {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* —— Progress (Stats) —— */
+.sf-progress .sf-panelTitle {
+  margin-bottom: 0.35rem;
+}
+
+.sf-statusProgressCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.sf-statusProgressHead {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 0.45rem;
+}
+
+.sf-statusProgressTrack {
+  height: 0.62rem;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.sf-statusProgressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  transition: width 0.2s ease;
+}
+
+.sf-statusProgressStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.sf-statusProgressStat {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.7rem;
+  background: #fff;
+  padding: 0.45rem 0.55rem;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.sf-statusProgressNote {
+  margin: 0;
+  border-radius: 0.7rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.sf-statusProgressNote--good {
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+}
+
+.sf-statusProgressNote--warn {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+.sf-statusProgressNote--neutral {
+  color: #1e3a8a;
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
+}
+
+.sf-progressHero,
+.stats-hero-card {
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+  min-height: 8.5rem;
+  border: 1px solid var(--sf-border, #e2e8f0);
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.sf-progressHero--pomo,
+.stats-hero-card--pomodoro {
+  border-color: #c7d2fe;
+  background: linear-gradient(145deg, #eef2ff 0%, #ffffff 55%);
+}
+
+.sf-progressHero--time,
+.stats-hero-card--focus-time {
+  border-color: #bae6fd;
+  background: linear-gradient(145deg, #f0f9ff 0%, #ffffff 55%);
+}
+
+.sf-progressHero--quiz,
+.stats-hero-card--quiz {
+  border-color: #fde68a;
+  background: linear-gradient(145deg, #fffbeb 0%, #ffffff 55%);
+}
+
+.sf-progressHero--score,
+.stats-hero-card--score {
+  border-color: #d8b4fe;
+  background: linear-gradient(145deg, #faf5ff 0%, #ffffff 55%);
+}
+
+.sf-progressHeroKicker,
+.stats-hero-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.sf-progressHeroValue,
+.stats-hero-value {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: #0f172a;
+  margin-top: 0.35rem;
+}
+
+.sf-progressHeroValue--sm {
+  font-size: clamp(1.35rem, 3.2vw, 1.75rem);
+}
+
+.sf-progressHeroSub,
+.stats-hero-subtext {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 0.35rem;
+  line-height: 1.35;
+}
+
+.sf-progressHeroHint,
+.sf-progressHeroMeta,
+.stats-hero-footnote,
+.stats-hero-meta {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.sf-progressPill {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.sf-progressCard,
+.stats-panel-card {
+  background: #fff;
+  border: 1px solid var(--sf-border, #e2e8f0);
+  border-radius: 16px;
+  padding: 1.15rem 1.25rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.sf-progressCardTitle,
+.stats-panel-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.35rem;
+}
+
+.sf-progressCardLead,
+.stats-panel-lead {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+  line-height: 1.45;
+}
+
+.sf-quizStack,
+.quiz-distribution-bar {
+  display: flex;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+
+.sf-quizStackSeg,
+.quiz-distribution-segment {
+  height: 100%;
+  min-width: 2px;
+  transition: width 0.35s ease;
+}
+
+.sf-quizStackSeg--ok {
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+}
+
+.sf-quizStackSeg--bad {
+  background: linear-gradient(90deg, #f97316, #fb7185);
+}
+
+.sf-quizStackSeg--blank {
+  background: linear-gradient(90deg, #94a3b8, #cbd5e1);
+}
+
+.sf-progressStat,
+.quiz-mini-stat {
+  padding: 0.5rem;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.sf-progressStat--ok {
+  background: #ecfdf5;
+}
+
+.sf-progressStat--bad {
+  background: #fff7ed;
+}
+
+.sf-progressStatVal,
+.quiz-mini-stat-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.sf-progressStatLbl,
+.quiz-mini-stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.sf-progressInsight,
+.stats-insight-box {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 0.85rem;
+}
+
+.sf-pomoTableWrap,
+.pomodoro-table-wrap {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.sf-pomoTable thead th {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  border-bottom-color: #e2e8f0;
+}
+
+.sf-pomoTable tbody td {
+  border-color: #f1f5f9;
+}
+
+@media (max-width: 991.98px) {
+  .sf-statusProgressStats {
+    grid-template-columns: 1fr;
+  }
+}

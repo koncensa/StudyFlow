@@ -1,0 +1,102 @@
+.sf-sessionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  max-width: 120px;
+}
+
+.sf-sessionHeader-logout {
+  border: none;
+  background: transparent;
+  font-family: var(--sf-font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+  padding: 0.35rem 0.25rem;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.sf-sessionHeader-logout:hover {
+  color: var(--sf-primary-700);
+}
+
+.sf-sessionHeader-delete {
+  border: none;
+  background: transparent;
+  font-family: var(--sf-font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b91c1c;
+  padding: 0.35rem 0.25rem;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.sf-sessionHeader-delete:hover {
+  color: #7f1d1d;
+}
+
+.sf-sessionHeader-delete:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.sf-sessionHeader-error {
+  margin: 0.2rem 0 0;
+  color: #b91c1c;
+  font-size: 0.72rem;
+  max-width: 320px;
+}
+
+.sf-sessionHeader-guest {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.sf-sessionHeader-btn {
+  font-family: var(--sf-font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.45rem 0.95rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  border: none;
+  white-space: nowrap;
+}
+
+.sf-sessionHeader-btn--ghost {
+  background: transparent;
+  color: #475569;
+  border: 1px solid var(--sf-border);
+}
+
+.sf-sessionHeader-btn--ghost:hover {
+  background: rgba(99, 102, 241, 0.06);
+  color: var(--sf-primary-700);
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+.sf-sessionHeader-btn--primary {
+  background: linear-gradient(135deg, var(--sf-primary), var(--sf-primary-700));
+  color: #fff;
+  box-shadow: 0 3px 12px rgba(99, 102, 241, 0.35);
+}
+
+.sf-sessionHeader-btn--primary:hover {
+  filter: brightness(1.05);
+  color: #fff;
+}
+
+@media (max-width: 575.98px) {
+  .sf-sessionHeader-btn {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.74rem;
+  }
+}

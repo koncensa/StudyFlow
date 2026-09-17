@@ -1,0 +1,121 @@
+<!-- ui: results | tr: sonuçlar html şablonu / en: results html template -->
+
+<div class="card mb-3 border-0 shadow-sm">
+  <div class="card-header bg-white border-bottom py-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <strong>{{ locale === "tr" ? "Quiz Sonucu" : "Quiz Result" }}</strong>
+    <span class="badge bg-light text-muted border" *ngIf="overviewTotalQuestions() > 0">
+      {{ locale === "tr" ? "Son quiz ozeti" : "Latest quiz summary" }}
+    </span>
+  </div>
+  <div class="card-body">
+    <div *ngIf="showBlockingLoader" class="text-muted py-4 text-center">
+      {{ t("Loading results…") }}
+    </div>
+
+    <div *ngIf="!showBlockingLoader && resultsError" class="alert alert-danger border mb-3" role="alert">
+      <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+        <span>{{ resultsError }}</span>
+        <button type="button" class="btn btn-sm btn-outline-danger text-nowrap" (click)="retryLoadResults.emit()">
+          {{ t("Try again") }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="!showBlockingLoader && !hasResultsShell && !resultsError" class="alert alert-light border mb-0" role="status">
+      {{ locale === "tr" ? "Henuz quiz sonucu yok. Once quiz coz." : "No quiz result yet. Complete a quiz first." }}
+    </div>
+
+    <div *ngIf="!showBlockingLoader && hasResultsShell">
+      <section class="sf-resultsOverview mb-4" *ngIf="overviewTotalQuestions() > 0">
+        <div class="sf-resultsOverview__head">
+          <div class="sf-resultsOverview__headText">
+            <div class="sf-resultsOverview__eyebrow">{{ locale === "tr" ? "Genel Sonuc" : "Overall Result" }}</div>
+            <h2 class="sf-resultsOverview__title mb-0">{{ locale === "tr" ? "Quiz Performansi" : "Quiz Performance" }}</h2>
+          </div>
+          <span class="sf-resultsOverview__score">{{ overviewScore() }}%</span>
+        </div>
+
+        <div
+          [ngClass]="overviewCommentInsightClass()"
+          role="region"
+          [attr.aria-label]="locale === 'tr' ? 'Kısa yorum' : 'Quick comment'"
+        >
+          <div class="sf-insight__accent" aria-hidden="true"></div>
+          <div class="sf-insight__content">
+            <div class="sf-insight__meta">
+              <span class="sf-insight__kicker">{{ locale === "tr" ? "Kısa yorum" : "Quick comment" }}</span>
+              <span class="sf-insight__band">{{ overviewCommentBandTag() }}</span>
+            </div>
+            <p class="sf-insight__text">{{ overviewComment() }}</p>
+          </div>
+        </div>
+
+        <div class="sf-resultsOverview__grid">
+          <article class="sf-resultsOverview__card">
+            <span>{{ locale === "tr" ? "Skor" : "Score" }}</span>
+            <strong>{{ overviewScore() }}%</strong>
+          </article>
+          <article class="sf-resultsOverview__card sf-resultsOverview__card--correct">
+            <span>{{ locale === "tr" ? "Dogru" : "Correct" }}</span>
+            <strong>{{ overviewCorrect() }}</strong>
+          </article>
+          <article class="sf-resultsOverview__card sf-resultsOverview__card--wrong">
+            <span>{{ locale === "tr" ? "Yanlis" : "Wrong" }}</span>
+            <strong>{{ overviewWrong() }}</strong>
+          </article>
+          <article class="sf-resultsOverview__card sf-resultsOverview__card--blank">
+            <span>{{ locale === "tr" ? "Bos" : "Blank" }}</span>
+            <strong>{{ overviewBlank() }}</strong>
+          </article>
+          <article class="sf-resultsOverview__card">
+            <span>{{ locale === "tr" ? "Toplam Soru" : "Total Questions" }}</span>
+            <strong>{{ overviewTotalQuestions() }}</strong>
+          </article>
+        </div>
+        <div class="sf-resultsJump">
+          <button type="button" class="sf-resultsJump__btn" (click)="openAnalysisTab.emit()">
+            &gt;&gt; {{ locale === "tr" ? "Analize geç" : "Go to analysis" }}
+          </button>
+        </div>
+        <div class="sf-resultsJump sf-resultsJump--analysisOnly">
+          <button type="button" class="sf-resultsJump__btn sf-resultsJump__btn--ghost" (click)="openAssistant.emit()">
+            &gt;&gt; {{ locale === "tr" ? "Quiz moduna git (PDF Assistant)" : "Go to quiz mode (PDF Assistant)" }}
+          </button>
+        </div>
+      </section>
+
+      <section class="border rounded-3 p-3 bg-white" *ngIf="quizSubmission && questionReviewRows().length">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <div class="fw-bold">{{ locale === "tr" ? "Soru Sonuclari" : "Question Results" }}</div>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="sf-miniStat sf-miniStat--correct">{{ locale === "tr" ? "Dogru" : "Correct" }}: {{ reviewCorrectCount() }}</span>
+            <span class="sf-miniStat sf-miniStat--wrong">{{ locale === "tr" ? "Yanlis" : "Wrong" }}: {{ reviewWrongCount() }}</span>
+            <span class="sf-miniStat sf-miniStat--blank">{{ locale === "tr" ? "Bos" : "Blank" }}: {{ reviewBlankCount() }}</span>
+          </div>
+        </div>
+        <div class="sf-reviewList sf-reviewList--compact">
+          <details *ngFor="let f of questionReviewRows()" [ngClass]="reviewCardClass(f)">
+            <summary class="sf-reviewSummary">
+              <div class="sf-reviewSummary__left">
+                <span class="sf-reviewCard__title">{{ locale === "tr" ? "Soru" : "Question" }} {{ f.question_index + 1 }}</span>
+                <span class="sf-reviewSummary__preview">{{ reviewPreviewText(f) }}</span>
+              </div>
+              <span [ngClass]="reviewStatusPillClass(f)">{{ reviewStatusLabel(f) }}</span>
+            </summary>
+            <div class="sf-reviewDetail">
+              <p class="sf-reviewCard__question mb-2" *ngIf="f.question_text">{{ f.question_text }}</p>
+              <div class="sf-reviewCard__row">
+                <span class="sf-reviewCard__label">{{ locale === "tr" ? "Senin Cevabin" : "Your Answer" }}</span>
+                <span class="sf-reviewCard__value">{{ reviewUserAnswerText(f) }}</span>
+              </div>
+              <div class="sf-reviewCard__row" *ngIf="f.correct_answer">
+                <span class="sf-reviewCard__label">{{ locale === "tr" ? "Dogru Cevap" : "Correct Answer" }}</span>
+                <span class="sf-reviewCard__value sf-reviewCard__value--correct">{{ f.correct_answer }}</span>
+              </div>
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

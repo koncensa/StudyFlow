@@ -1,0 +1,30 @@
+<div class="sf-session-field">
+  <label class="sf-session-label" for="session-login-email">{{ "form.email" | lang }}</label>
+  <input
+    id="session-login-email"
+    type="email"
+    class="sf-session-input"
+    [class.sf-session-input--invalid]="emailError"
+    [ngModel]="email"
+    (ngModelChange)="emailChange.emit($event)"
+    name="sessionLoginEmail"
+    autocomplete="username"
+    [placeholder]="'form.ph.email' | lang"
+  />
+  <p class="sf-session-hint sf-session-hint--error" *ngIf="emailError">{{ emailError }}</p>
+</div>
+
+<div class="sf-session-field">
+  <label class="sf-session-label" for="session-login-password">{{ "form.password" | lang }}</label>
+  <input
+    id="session-login-password"
+    type="password"
+    class="sf-session-input"
+    [class.sf-session-input--invalid]="passwordError"
+    [ngModel]="password"
+    (ngModelChange)="passwordChange.emit($event)"
+    name="sessionLoginPassword"
+    autocomplete="current-password"
+  />
+  <p class="sf-session-hint sf-session-hint--error" *ngIf="passwordError">{{ passwordError }}</p>
+</div>

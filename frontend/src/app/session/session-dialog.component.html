@@ -1,0 +1,97 @@
+<div
+  class="sf-sessionDialog-root"
+  *ngIf="visible"
+  aria-modal="true"
+  role="dialog"
+  aria-labelledby="sf-sessionDialog-title"
+>
+  <div class="sf-sessionDialog-backdrop" (click)="close()"></div>
+  <div class="sf-sessionDialog-panel" (click)="$event.stopPropagation()">
+    <button type="button" class="sf-sessionDialog-close" (click)="close()" [attr.aria-label]="'sessionDlg.close' | lang">×</button>
+
+    <div class="sf-sessionDialog-tabs" role="tablist">
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="tab === 'login'"
+        class="sf-sessionDialog-tab"
+        [class.sf-sessionDialog-tab--active]="tab === 'login'"
+        (click)="setTab('login')"
+      >
+        {{ "sessionDlg.tabLogin" | lang }}
+      </button>
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="tab === 'register'"
+        class="sf-sessionDialog-tab"
+        [class.sf-sessionDialog-tab--active]="tab === 'register'"
+        (click)="setTab('register')"
+      >
+        {{ "sessionDlg.tabSignup" | lang }}
+      </button>
+    </div>
+
+    <div class="sf-sessionDialog-body">
+      <h2 id="sf-sessionDialog-title" class="sf-sessionDialog-title">
+        {{ (tab === "login" ? "sessionDlg.titleLogin" : "sessionDlg.titleSignup") | lang }}
+      </h2>
+      <p class="sf-sessionDialog-lead">
+        {{ (tab === "login" ? "sessionDlg.leadLogin" : "sessionDlg.leadSignup") | lang }}
+      </p>
+
+      <p class="sf-sessionDialog-notice alert alert-info small py-2 mb-3" role="status" *ngIf="noticeMessage">
+        {{ noticeMessage }}
+      </p>
+
+      <p class="sf-sessionDialog-notice alert alert-success small py-2 mb-3" role="status" *ngIf="successBanner">
+        {{ successBanner }}
+      </p>
+
+      <form class="sf-sessionDialog-form" (ngSubmit)="submit()" novalidate>
+        <app-login-form
+          *ngIf="tab === 'login'"
+          [email]="email"
+          (emailChange)="email = $event"
+          [password]="password"
+          (passwordChange)="password = $event"
+          [emailError]="emailError"
+          [passwordError]="passwordError"
+        ></app-login-form>
+
+        <app-register-form
+          *ngIf="tab === 'register'"
+          [fullName]="fullName"
+          (fullNameChange)="fullName = $event"
+          [email]="email"
+          (emailChange)="email = $event"
+          [password]="password"
+          (passwordChange)="password = $event"
+          [emailError]="emailError"
+          [passwordError]="passwordError"
+        ></app-register-form>
+
+        <p class="sf-sessionDialog-formError" *ngIf="formError">{{ formError }}</p>
+
+        <button type="submit" class="sf-sessionDialog-submit" [disabled]="busy">
+          {{
+            busy
+              ? ("sessionDlg.busy" | lang)
+              : ((tab === "login" ? "sessionDlg.submitLogin" : "sessionDlg.submitSignup") | lang)
+          }}
+        </button>
+      </form>
+
+      <p class="sf-sessionDialog-switch">
+        <ng-container *ngIf="tab === 'login'; else haveAccount">
+          {{ "sessionDlg.switchNoAccount" | lang }}
+          <button type="button" class="sf-sessionDialog-link" (click)="setTab('register')">{{ "sessionDlg.tabSignup" | lang }}</button>
+        </ng-container>
+        <ng-template #haveAccount>
+          {{ "sessionDlg.switchHasAccount" | lang }}
+          <button type="button" class="sf-sessionDialog-link" (click)="setTab('login')">{{ "sessionDlg.tabLogin" | lang }}</button>
+        </ng-template>
+      </p>
+    </div>
+  </div>
+</div>

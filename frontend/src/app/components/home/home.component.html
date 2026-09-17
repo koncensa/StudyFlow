@@ -1,0 +1,116 @@
+<!-- ui: home | tr: ana sayfa html şablonu (görünüm) / en: home page html template view -->
+
+<section class="sf-home" [class.sf-home--guest]="!isAuthenticated">
+  <div class="alert alert-secondary border-0 small mb-3" role="status" *ngIf="!isAuthenticated">
+    <strong>{{ "home.guestLockTitle" | lang }}</strong>
+    <span class="d-block mt-1 text-muted">{{ "home.guestLockBody" | lang }}</span>
+  </div>
+  <div class="sf-heroPanel">
+    <p class="sf-kicker">StudyFlow</p>
+    <h1 class="sf-heroHeading">
+      See what to study first,
+      <em class="sf-heroAccent">study better.</em>
+    </h1>
+    <p class="sf-heroSub">
+      Upload PDF, get summary, ask questions.
+    </p>
+    <div class="sf-flowRow">
+      <span class="sf-flowStep">Upload</span>
+      <span class="sf-flowArrow">→</span>
+      <span class="sf-flowStep">Summary</span>
+      <span class="sf-flowArrow">→</span>
+      <span class="sf-flowStep">Ask</span>
+      <span class="sf-flowArrow">→</span>
+      <span class="sf-flowStep">Quiz</span>
+    </div>
+    <div class="sf-heroActions" *ngIf="isAuthenticated">
+      <button type="button" class="btn sf-btnPrimary" (click)="startFlow.emit()">Start</button>
+      <button type="button" class="btn sf-btnGhost" (click)="goQuizFromHero.emit()">Go to quiz</button>
+    </div>
+    <div class="sf-heroActions" *ngIf="!isAuthenticated">
+      <button type="button" class="btn sf-btnPrimary" (click)="openSession.emit('login')">{{ "auth.openLogin" | lang }}</button>
+      <button type="button" class="btn sf-btnGhost" (click)="openSession.emit('register')">{{ "auth.openSignup" | lang }}</button>
+    </div>
+  </div>
+<!--anasayfa route linkleri-->
+  <div class="row g-3 mt-1 sf-featureGrid">
+    <div class="col-md-6">
+      <article class="sf-featureCard">
+        <div class="sf-featureIcon" aria-hidden="true">📄</div>
+        <h2 class="sf-featureTitle">PDF Helper</h2>
+        <p class="sf-featureDesc">Get a short summary and ask questions.</p>
+        <button type="button" class="btn btn-link btn-sm px-0 mt-1" (click)="navigate.emit('pdf')">{{ "home.openAssistant" | lang }}</button>
+      </article>
+    </div>
+    <div class="col-md-6">
+      <article class="sf-featureCard">
+        <div class="sf-featureIcon" aria-hidden="true">✏️</div>
+        <h2 class="sf-featureTitle">Quick Quiz</h2>
+        <p class="sf-featureDesc">Practice with questions picked by topic.</p>
+        <button type="button" class="btn btn-link btn-sm px-0 mt-1" (click)="openQuiz.emit()">{{ "home.openQuiz" | lang }}</button>
+      </article>
+    </div>
+    <div class="col-md-6">
+      <article class="sf-featureCard">
+        <div class="sf-featureIcon" aria-hidden="true">📊</div>
+        <h2 class="sf-featureTitle">Your Progress</h2>
+        <p class="sf-featureDesc">See what you know and what needs work.</p>
+        <button type="button" class="btn btn-link btn-sm px-0 mt-1" (click)="navigate.emit('results')">{{ "home.openResults" | lang }}</button>
+      </article>
+    </div>
+    <div class="col-md-6">
+      <article class="sf-featureCard">
+        <div class="sf-featureIcon" aria-hidden="true">🍅</div>
+        <h2 class="sf-featureTitle">Pomodoro</h2>
+        <p class="sf-featureDesc">Focus on one topic and log your time.</p>
+        <button type="button" class="btn btn-link btn-sm px-0 mt-1" (click)="navigate.emit('pomo')">{{ "home.openPomodoro" | lang }}</button>
+      </article>
+    </div>
+    <div class="col-md-6" *ngIf="isAuthenticated">
+      <article class="sf-featureCard">
+        <div class="sf-featureIcon" aria-hidden="true">📅</div>
+        <h2 class="sf-featureTitle">{{ locale === "tr" ? "Akademik plan" : "Academic plan" }}</h2>
+        <p class="sf-featureDesc">
+          {{
+            locale === "tr"
+              ? "Hedef ve müsaitliğine göre neyi ne zaman çalışacağını planla."
+              : "Plan what to study and when, based on your goal and time."
+          }}
+        </p>
+        <button type="button" class="btn btn-link btn-sm px-0 mt-1" (click)="navigate.emit('plan')">
+          {{ locale === "tr" ? "Akademik plana git →" : "Open academic plan →" }}
+        </button>
+      </article>
+    </div>
+    <div class="col-md-6" *ngIf="isAuthenticated">
+      <article class="sf-featureCard">
+        <div class="sf-featureIcon" aria-hidden="true">🎯</div>
+        <h2 class="sf-featureTitle">{{ locale === "tr" ? "Kişisel koçluk" : "Personal coaching" }}</h2>
+        <p class="sf-featureDesc">
+          {{
+            locale === "tr"
+              ? "Zayıf konularına göre mini quiz, çalışma ipuçları ve seçilmiş video / web kaynakları."
+              : "Mini quizzes, study hints, and curated video and web picks based on your weak topics."
+          }}
+        </p>
+        <button type="button" class="btn btn-link btn-sm px-0 mt-1" (click)="navigate.emit('analysis')">
+          {{ locale === "tr" ? "Analize git →" : "Open analysis →" }}
+        </button>
+      </article>
+    </div>
+  </div>
+
+  <div class="sf-badgesPreview mt-5">
+    <h3 class="sf-sectionLabel">Badges</h3>
+    <p class="text-muted small" *ngIf="!isAuthenticated">{{ "auth.wallBody" | lang }}</p>
+    <div class="row g-2" *ngIf="starterBadges.length">
+      <div class="col-md-4" *ngFor="let b of starterBadges">
+        <div class="sf-badgeTile" [class.sf-badgeTile--earned]="b.earned">
+          <span class="sf-badgeIcon" [class.text-muted]="!b.earned">★</span>
+          <div class="sf-badgeTitle">{{ b.title }}</div>
+          <div class="sf-badgeHint">{{ b.description }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

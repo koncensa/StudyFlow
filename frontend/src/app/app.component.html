@@ -1,0 +1,778 @@
+<header class="sf-header">
+  <div class="sf-headerInner container-fluid px-3 px-lg-4">
+    <a class="sf-logo" href="javascript:void(0)" (click)="go('home')">
+      <span class="sf-logoMark" aria-hidden="true">S</span>
+      <span class="sf-logoText">StudyFlow</span>
+    </a>
+
+    <nav class="sf-headerNav" aria-label="Main">
+      <button type="button" [class]="navClass('home')" (click)="go('home')">{{ "nav.home" | lang }}</button>
+      <button type="button" [class]="navClass('pdf')" (click)="go('pdf')">{{ "nav.assistant" | lang }}</button>
+      <button
+        type="button"
+        [class]="quizNavClass()"
+        (click)="go('quiz')"
+        [disabled]="isAuthenticated"
+        [attr.aria-label]="i18n.lang === 'tr' ? 'Quiz — asistan veya otomatik akışla açılır' : 'Quiz — opens from the assistant or when a quiz starts'"
+      >
+        {{ "nav.quiz" | lang }}
+      </button>
+      <button type="button" [class]="navClass('results')" (click)="go('results')">{{ "nav.results" | lang }}</button>
+      <button type="button" [class]="navClass('analysis')" (click)="go('analysis')">{{ "nav.analysis" | lang }}</button>
+      <button
+        type="button"
+        [class]="navClass('plan')"
+        (click)="go('plan')"
+        [attr.aria-label]="i18n.lang === 'tr' ? 'Akademik çalışma planı' : 'Academic study planner'"
+        title="{{ i18n.lang === 'tr' ? 'Akademik plan — hedef ve takvim' : 'Academic plan — goals and schedule' }}"
+      >
+        {{ "nav.plan" | lang }}
+      </button>
+      <button type="button" [class]="navClass('pomo')" (click)="go('pomo')">{{ "nav.pomo" | lang }}</button>
+      <button type="button" [class]="navClass('stats')" (click)="go('stats')">{{ "nav.stats" | lang }}</button>
+      <button type="button" [class]="navClass('badges')" (click)="go('badges')">{{ "nav.badges" | lang }}</button>
+      <button
+        type="button"
+        [class]="navClass('profile') + ' sf-navProfileLink'"
+        (click)="go('profile')"
+        [title]="profileNavEmailLabel"
+        [attr.aria-label]="i18n.lang === 'tr' ? 'Profilim' : 'My profile'"
+      >
+        <!-- Source shape: Font Awesome free "user-alt" -->
+        <svg viewBox="0 0 512 576" aria-hidden="true" focusable="false">
+          <path d="M256 288c79.53 0 144-64.47 144-144S335.53 0 256 0 112 64.47 112 144s64.47 144 144 144zm0 32C141.13 320 48 413.13 48 528c0 8.84 7.16 16 16 16h384c8.84 0 16-7.16 16-16 0-114.87-93.13-208-208-208z"/>
+        </svg>
+        <span class="sf-navProfileMeta">
+          <span class="sf-navProfileText text-truncate">{{ profileNavEmailLabel }}</span>
+          <span class="sf-navXpPill" *ngIf="isAuthenticated">XP: {{ profile ? profile.xp : 0 }}</span>
+        </span>
+      </button>
+      <button type="button" class="sf-navLink sf-navLogoutLink" *ngIf="isAuthenticated" (click)="logoutFromNav()">
+        {{ "session.logout" | lang }}
+      </button>
+    </nav>
+
+    <div class="sf-headerTools">
+      <app-session-header *ngIf="!isAuthenticated" (openSession)="openSessionDialog($event)"></app-session-header>
+    </div>
+  </div>
+</header>
+
+<main class="sf-main" [class.sf-main--naturalScroll]="activeNav === 'home' || activeNav === 'stats' || activeNav === 'profile'">
+  <div class="sf-page" [ngClass]="pageShellClass()">
+    <div class="sf-badgeToast" *ngIf="activeBadgeUnlock as unlocked">
+      <div class="sf-badgeToastTitle">
+        {{ i18n.lang === "tr" ? "Yeni rozet kazandın!" : "New badge unlocked!" }}
+      </div>
+      <div class="sf-badgeToastName">{{ unlocked.title }}</div>
+      <div class="sf-badgeToastDesc">{{ unlocked.description }}</div>
+    </div>
+    <p class="text-danger small" *ngIf="uploadError">{{ uploadError }}</p>
+
+    <app-home
+      *ngIf="activeNav === 'home'"
+      [isAuthenticated]="isAuthenticated"
+      [locale]="i18n.lang"
+      [starterBadges]="badgeSections.length ? badgeSections[0].badges : []"
+      (startFlow)="startFlow()"
+      (goQuizFromHero)="goQuizFromHero()"
+      (openQuiz)="openQuizShellFromApp()"
+      (openSession)="openSessionDialog($event)"
+      (navigate)="go($event)"
+    ></app-home>
+
+    <section *ngIf="activeNav === 'pdf'" class="sf-pdfPage">
+      <ng-container *ngIf="isAuthenticated; else pdfAuthGate">
+        <ng-container *ngFor="let uid of [signedInId]; trackBy: trackPdfAssistantUser">
+          <app-pdf-assistant
+            *ngIf="uid >= 1"
+            [userId]="uid"
+            [locale]="i18n.lang"
+            [quizFocusTopics]="assistantQuizFocusTopics"
+            [quizChallengeTopics]="assistantQuizChallengeTopics"
+            [weakTopicsFromQuiz]="assistantQuizWeakRaw"
+            [strongTopicsFromQuiz]="assistantQuizStrongRaw"
+            [insightTipLines]="assistantInsightTipLines"
+            [focusAssistantChatSeq]="assistantFocusChatSeq"
+            (quizReady)="onAssistantQuiz($event)"
+            (sessionChange)="onPdfSession($event)"
+            (openQuizTab)="openQuizShellFromApp()"
+          ></app-pdf-assistant>
+        </ng-container>
+      </ng-container>
+      <ng-template #pdfAuthGate>
+        <div class="sf-authWall card border-0 shadow-sm p-4 p-md-5 mx-auto" style="max-width: 32rem">
+          <h2 class="h5 mb-2">{{ "auth.wallTitle" | lang }}</h2>
+          <p class="text-muted mb-4">{{ "auth.wallBody" | lang }}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn sf-btnPrimary" (click)="openSessionDialog('login')">{{ "auth.openLogin" | lang }}</button>
+            <button type="button" class="btn sf-btnGhost" (click)="openSessionDialog('register')">{{ "auth.openSignup" | lang }}</button>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+
+    <section *ngIf="activeNav === 'quiz'" class="sf-panel sf-quizShell">
+      <ng-container *ngIf="isAuthenticated; else quizAuthGate">
+      <h1 class="sf-panelTitle">Quiz</h1>
+      <p class="sf-mutedCopy mb-3" *ngIf="!quizReady">
+        Make a quiz from your PDF or notes.
+      </p>
+      <div class="card border mb-3" *ngIf="!quizReady">
+        <div class="card-body py-3">
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <label class="small text-muted mb-0" for="sfQuizN">Questions</label>
+            <input
+              id="sfQuizN"
+              type="number"
+              class="form-control form-control-sm"
+              style="width: 4.5rem"
+              min="1"
+              max="15"
+              [(ngModel)]="quizGenCount"
+            />
+            <button
+              type="button"
+              class="btn btn-sm sf-btnPrimary"
+              (click)="preparedPdfQuizPending ? startPreparedPdfQuiz() : generateQuizFromPdf()"
+              [disabled]="!canGenerateQuizFromPdf || quizLoading || quizSummaryLoading"
+            >
+              {{
+                quizLoading
+                  ? "…"
+                  : preparedPdfQuizPending
+                  ? (preparedPdfQuizKind === "mini_adaptive"
+                    ? (i18n.lang === "tr" ? "Mini quizi başlat" : "Start mini quiz")
+                    : (i18n.lang === "tr" ? "Quizi başlat" : "Start quiz"))
+                  : "Create quiz"
+              }}
+            </button>
+          </div>
+          <p class="text-muted small mb-0 mt-2">Pick 1-15 questions. Quiz uses that exact count.</p>
+          <p class="text-muted small mb-0 mt-2" *ngIf="preparedPdfQuizPending">
+            {{
+              i18n.lang === "tr"
+                ? "Kişiselleştirilmiş quiz hazır. Otomatik başlamaz; yukarıdaki butondan başlatabilirsin."
+                : "Personalized quiz is ready. It will not auto-start; use the button above."
+            }}
+          </p>
+          <p class="text-muted small mb-0 mt-2" *ngIf="!canGenerateQuizFromPdf">
+            {{ "quiz.uploadPdfFirst" | lang }}
+          </p>
+          <p class="text-muted small mb-0 mt-2" *ngIf="canGenerateQuizFromPdf && quizSubmission?.topic_analysis?.weak_topics?.length">
+            Last weak topics are prioritized.
+          </p>
+        </div>
+      </div>
+      <div class="card border mb-3" *ngIf="showQuizHistoryPanel">
+        <div class="card-body py-3">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <strong>{{ i18n.lang === "tr" ? "Quiz gecmisi ve ozel oneriler" : "Quiz history and personalized tips" }}</strong>
+            <div class="d-flex align-items-center gap-2">
+              <label for="sfQuizHistoryFilter" class="small text-muted mb-0">{{ i18n.lang === "tr" ? "Filtre" : "Filter" }}</label>
+              <select id="sfQuizHistoryFilter" class="form-select form-select-sm" style="width: 10rem" [(ngModel)]="quizHistoryFilter">
+                <option value="all">{{ i18n.lang === "tr" ? "Hepsi" : "All" }}</option>
+                <option value="standard">{{ i18n.lang === "tr" ? "Normal" : "Standard" }}</option>
+                <option value="mini">{{ i18n.lang === "tr" ? "Mini" : "Mini" }}</option>
+              </select>
+            </div>
+          </div>
+          <p class="small text-muted mb-2">
+            {{
+              i18n.lang === "tr"
+                ? "Burada normal + mini tum denemelerin, dogru-yanlis ozeti ve o denemeden cikmis kisisel yonlendirmeler gorunur."
+                : "See all standard + mini attempts with score breakdowns and personalized next-step guidance."
+            }}
+          </p>
+          <div *ngIf="filteredQuizHistory.length; else noQuizHistory" class="list-group list-group-flush">
+            <details class="list-group-item px-0 py-2" *ngFor="let item of filteredQuizHistory.slice(0, 20)">
+              <summary class="d-flex flex-wrap justify-content-between align-items-center gap-2" style="cursor: pointer">
+                <span class="d-flex flex-wrap align-items-center gap-2">
+                  <span class="badge bg-light text-dark border">{{ quizKindLabel(item.quizKind) }}</span>
+                  <span class="fw-semibold">{{ item.score | number : "1.0-0" }}%</span>
+                  <span class="small text-muted">{{ item.correct }}/{{ item.totalQuestions }} {{ i18n.lang === "tr" ? "dogru" : "correct" }}</span>
+                </span>
+                <span class="small text-muted">{{ item.solvedAtIso | date : "short" }}</span>
+              </summary>
+              <div class="mt-2 small text-muted">
+                {{ quizSourceLabel(item.quizSource) }} · {{ item.wrong }} {{ i18n.lang === "tr" ? "yanlis" : "wrong" }}
+                <span *ngIf="item.unanswered > 0"> · {{ item.unanswered }} {{ i18n.lang === "tr" ? "bos" : "blank" }}</span>
+                <span *ngIf="item.durationSeconds != null"> · {{ item.durationSeconds }}s</span>
+              </div>
+              <div class="small mt-2" *ngIf="item.focusTopics.length">
+                <strong>{{ i18n.lang === "tr" ? "Odak konular" : "Focus topics" }}:</strong> {{ item.focusTopics.join(", ") }}
+              </div>
+              <div class="small mt-2" *ngIf="item.recommendationLines.length">
+                <strong>{{ i18n.lang === "tr" ? "Kisisel oneriler" : "Personalized suggestions" }}:</strong>
+                <ul class="mb-0 mt-1 ps-3">
+                  <li *ngFor="let line of item.recommendationLines.slice(0, 4)">{{ line }}</li>
+                </ul>
+              </div>
+              <div class="d-flex flex-wrap gap-2 mt-2">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary"
+                  [disabled]="!canGenerateQuizFromPdf"
+                  (click)="retryMiniFromHistory(item)"
+                >
+                  {{ i18n.lang === "tr" ? "Bu denemenin mini quizini tekrar ac" : "Retry suggested mini quiz" }}
+                </button>
+              </div>
+            </details>
+          </div>
+          <ng-template #noQuizHistory>
+            <p class="small text-muted mb-0">
+              {{ i18n.lang === "tr" ? "Henuz quiz gecmisi yok. Ilk quizinden sonra burada detayli gecmis gorunecek." : "No quiz history yet. Your attempts will appear here after the first submission." }}
+            </p>
+          </ng-template>
+        </div>
+      </div>
+      <app-quiz
+        *ngIf="quizReady"
+        [questions]="quizQuestions"
+        [loading]="quizLoading"
+        [submission]="quizSubmission"
+        [suggestions]="suggestions"
+        [timeLimitSeconds]="quizTimeLimitSeconds"
+        [locale]="i18n.lang"
+        (submit)="onSubmitQuiz($event)"
+        (timeUp)="onSubmitQuiz($event)"
+        (postMiniQuiz)="onTailoredMiniQuiz($event)"
+        (postOpenAssistant)="go('pdf')"
+        (postRetryQuiz)="generateQuizFromPdf()"
+        (postOpenAnalysis)="go('analysis')"
+      ></app-quiz>
+      </ng-container>
+      <ng-template #quizAuthGate>
+        <div class="sf-authWall card border-0 shadow-sm p-4 p-md-5 mx-auto" style="max-width: 32rem">
+          <h2 class="h5 mb-2">{{ "auth.wallTitle" | lang }}</h2>
+          <p class="text-muted mb-4">{{ "auth.wallBody" | lang }}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn sf-btnPrimary" (click)="openSessionDialog('login')">{{ "auth.openLogin" | lang }}</button>
+            <button type="button" class="btn sf-btnGhost" (click)="openSessionDialog('register')">{{ "auth.openSignup" | lang }}</button>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+
+    <section *ngIf="activeNav === 'results'" class="sf-panel sf-resultsShell">
+      <ng-container *ngIf="isAuthenticated; else resultsAuthGate">
+      <h1 class="sf-panelTitle">Results</h1>
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <button
+          type="button"
+          class="btn btn-sm"
+          [ngClass]="resultsTab === 'latest' ? 'sf-btnPrimary' : 'btn-outline-secondary'"
+          (click)="setResultsTab('latest')"
+        >
+          {{ i18n.lang === "tr" ? "Son Quiz Sonucu" : "Latest Quiz" }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm"
+          [ngClass]="resultsTab === 'history' ? 'sf-btnPrimary' : 'btn-outline-secondary'"
+          (click)="setResultsTab('history')"
+        >
+          {{ i18n.lang === "tr" ? "Quiz Gecmisi" : "Quiz History" }}
+        </button>
+      </div>
+      <div *ngIf="resultsTab === 'latest'">
+          <app-results
+            [topicAnalysis]="topicAnalysisForResults"
+            [lifetimeTopicAnalysis]="lifetimeTopicAnalysisForResults"
+            [topicProgress]="topicProgressForResults"
+            [quizSubmission]="displayQuizSubmissionForAnalysis"
+            [suggestions]="suggestionsForResults"
+            [lastQuizSummary]="displayLastQuizSummary"
+            [resultsLoading]="resultsLoading"
+            [resultsError]="resultsLoadError"
+            [locale]="i18n.lang"
+            [hasActivePdf]="canRunPdfBasedQuiz"
+            (retryLoadResults)="loadPersistedResults()"
+            (startPomodoro)="onStartPomodoro($event)"
+            (requestWeakTopicQuiz)="onWeakTopicQuizFromResults()"
+            (startMiniWeakQuiz)="startMicroWeakQuiz($event)"
+            (startCoachingQuiz)="startCoachingSuggestedQuiz()"
+            (startTailoredMiniQuiz)="onTailoredMiniQuiz($event)"
+            (startMistakesQuiz)="startMistakesRetryQuiz()"
+            (startEasyRetry)="startEasyRetryQuiz()"
+          (openAssistant)="go('pdf')"
+          (openAnalysisTab)="go('analysis')"
+        ></app-results>
+      </div>
+      <div class="card border shadow-sm" *ngIf="resultsTab === 'history'">
+        <div class="card-body py-3">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <div class="d-flex align-items-center gap-2">
+              <strong>{{ i18n.lang === "tr" ? "Quiz gecmisi" : "Quiz History" }}</strong>
+              <span class="small text-muted">{{ quizHistory.length }}</span>
+            </div>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger"
+              [disabled]="!quizHistory.length"
+              (click)="clearQuizHistory()"
+            >
+              Clear History
+            </button>
+          </div>
+          <p class="small text-muted mb-3">
+            {{
+              i18n.lang === "tr"
+                ? "Gecmis denemelere tiklayip skoru, dogru-yanlis dagilimini ve odak konulari inceleyebilirsin."
+                : "Open any attempt to review score, correct/wrong breakdown, and focus topics."
+            }}
+          </p>
+          <div *ngIf="quizHistory.length; else noQuizHistoryResults" class="list-group list-group-flush">
+            <details class="list-group-item px-0 py-2" *ngFor="let item of quizHistory.slice(0, 20)">
+              <summary class="d-flex flex-wrap justify-content-between align-items-center gap-2" style="cursor: pointer">
+                <span class="d-flex flex-wrap align-items-center gap-2">
+                  <span class="badge bg-light text-dark border">{{ quizKindLabel(item.quizKind) }}</span>
+                  <span class="fw-semibold">{{ item.score | number : "1.0-0" }}%</span>
+                </span>
+                <span class="small text-muted">{{ item.solvedAtIso | date : "short" }}</span>
+              </summary>
+              <div class="mt-2 small text-muted">
+                {{ item.correct }}/{{ item.totalQuestions }} {{ i18n.lang === "tr" ? "dogru" : "correct" }}
+                · {{ item.wrong }} {{ i18n.lang === "tr" ? "yanlis" : "wrong" }}
+              </div>
+              <div class="mt-2 small">
+                <strong>{{ i18n.lang === "tr" ? "Kisa yorum" : "Quick comment" }}:</strong>
+                {{ quizShortComment(item.score) }}
+              </div>
+              <div class="mt-2 small" *ngIf="item.focusTopics.length">
+                <strong>{{ i18n.lang === "tr" ? "Odak konular" : "Focus topics" }}:</strong> {{ item.focusTopics.join(", ") }}
+              </div>
+              <div class="d-flex flex-wrap gap-2 mt-2">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary"
+                  [disabled]="!canGenerateQuizFromPdf"
+                  (click)="retryMiniFromHistory(item)"
+                >
+                  {{ i18n.lang === "tr" ? "Mini quizi tekrar ac" : "Retry mini quiz" }}
+                </button>
+              </div>
+            </details>
+          </div>
+          <ng-template #noQuizHistoryResults>
+            <p class="small text-muted mb-0">
+              {{ i18n.lang === "tr" ? "Henuz quiz gecmisi yok." : "No quiz history yet." }}
+            </p>
+          </ng-template>
+        </div>
+      </div>
+      </ng-container>
+      <ng-template #resultsAuthGate>
+        <div class="sf-authWall card border-0 shadow-sm p-4 p-md-5 mx-auto" style="max-width: 32rem">
+          <h2 class="h5 mb-2">{{ "auth.wallTitle" | lang }}</h2>
+          <p class="text-muted mb-4">{{ "auth.wallBody" | lang }}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn sf-btnPrimary" (click)="openSessionDialog('login')">{{ "auth.openLogin" | lang }}</button>
+            <button type="button" class="btn sf-btnGhost" (click)="openSessionDialog('register')">{{ "auth.openSignup" | lang }}</button>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+
+    <section *ngIf="activeNav === 'analysis'" class="sf-panel sf-panel--analysis">
+      <ng-container *ngIf="isAuthenticated; else analysisAuthGate">
+        <app-study-analysis
+          [topicAnalysis]="topicAnalysisForResults"
+          [quizSubmission]="displayQuizSubmissionForAnalysis"
+          [suggestions]="suggestionsForResults"
+          [topicProgress]="topicProgressForResults"
+          [analysisHistory]="quizHistory"
+          [lastQuizSummary]="displayLastQuizSummary"
+          [resultsLoading]="resultsLoading"
+          [resultsError]="resultsLoadError"
+          [locale]="i18n.lang"
+          [hasActivePdf]="canRunPdfBasedQuiz"
+          (retryLoadResults)="loadPersistedResults()"
+          (studyTopic)="onStartPomodoro($event)"
+          (openAssistant)="openAssistantToChat()"
+          (openStatsTab)="go('stats')"
+          (startTailoredMiniQuiz)="onTailoredMiniQuiz($event)"
+          (startCoachingQuiz)="startCoachingSuggestedQuiz()"
+        ></app-study-analysis>
+      </ng-container>
+      <ng-template #analysisAuthGate>
+        <div class="sf-authWall card border-0 shadow-sm p-4 p-md-5 mx-auto" style="max-width: 32rem">
+          <h2 class="h5 mb-2">{{ "auth.wallTitle" | lang }}</h2>
+          <p class="text-muted mb-4">{{ "auth.wallBody" | lang }}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn sf-btnPrimary" (click)="openSessionDialog('login')">{{ "auth.openLogin" | lang }}</button>
+            <button type="button" class="btn sf-btnGhost" (click)="openSessionDialog('register')">{{ "auth.openSignup" | lang }}</button>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+
+    <section *ngIf="activeNav === 'plan'" class="sf-panel sf-page--plan">
+      <ng-container *ngIf="isAuthenticated; else planAuthGate">
+        <ng-container *ngFor="let uid of [signedInId]; trackBy: trackPdfAssistantUser">
+          <app-academic-plan *ngIf="uid >= 1" [locale]="i18n.lang"></app-academic-plan>
+        </ng-container>
+      </ng-container>
+      <ng-template #planAuthGate>
+        <div class="sf-authWall card border-0 shadow-sm p-4 p-md-5 mx-auto" style="max-width: 32rem">
+          <h2 class="h5 mb-2">{{ "auth.wallTitle" | lang }}</h2>
+          <p class="text-muted mb-4">{{ "auth.wallBody" | lang }}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn sf-btnPrimary" (click)="openSessionDialog('login')">{{ "auth.openLogin" | lang }}</button>
+            <button type="button" class="btn sf-btnGhost" (click)="openSessionDialog('register')">{{ "auth.openSignup" | lang }}</button>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+
+    <section *ngIf="activeNav === 'pomo'" class="sf-panel">
+      <ng-container *ngIf="isAuthenticated; else pomoAuthGate">
+      <app-pomodoro
+        [userId]="signedInId"
+        [topic]="pomodoroTopic"
+        (pomodoroEnded)="onPomodoroEnded()"
+      ></app-pomodoro>
+      </ng-container>
+      <ng-template #pomoAuthGate>
+        <div class="sf-authWall card border-0 shadow-sm p-4 p-md-5 mx-auto" style="max-width: 32rem">
+          <h2 class="h5 mb-2">{{ "auth.wallTitle" | lang }}</h2>
+          <p class="text-muted mb-4">{{ "auth.wallBody" | lang }}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn sf-btnPrimary" (click)="openSessionDialog('login')">{{ "auth.openLogin" | lang }}</button>
+            <button type="button" class="btn sf-btnGhost" (click)="openSessionDialog('register')">{{ "auth.openSignup" | lang }}</button>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+
+    <section *ngIf="activeNav === 'stats'" class="sf-panel sf-progress">
+      <ng-container *ngIf="isAuthenticated; else statsAuthGate">
+      <div class="d-flex flex-wrap align-items-start gap-3 mb-3">
+        <div>
+          <h1 class="sf-panelTitle mb-1">{{ i18n.lang === "tr" ? "İlerleme" : "Progress" }}</h1>
+          <p class="sf-mutedCopy mb-0">
+            {{
+              i18n.lang === "tr"
+                ? "Tamamlanan Pomodoro oturumları ve kayıtlı quiz denemelerinizden türetilen özet."
+                : "Summary from completed Pomodoro sessions and stored quiz attempts on the server."
+            }}
+          </p>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4" *ngIf="studyStats as st">
+        <div class="col-6 col-xl-3">
+          <div class="sf-progressHero sf-progressHero--pomo">
+            <div class="sf-progressHeroKicker">{{ i18n.lang === "tr" ? "Pomodoro" : "Pomodoro" }}</div>
+            <div class="sf-progressHeroValue">{{ st.pomodoro_sessions_count }}</div>
+            <div class="sf-progressHeroSub">
+              {{ i18n.lang === "tr" ? "tamamlanan oturum" : "completed sessions" }}
+            </div>
+            <div class="sf-progressHeroMeta" *ngIf="profile?.pomodoro_streak != null">
+              <span class="sf-progressPill">{{ i18n.lang === "tr" ? "Seri" : "Streak" }}: {{ profile?.pomodoro_streak }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-xl-3">
+          <div class="sf-progressHero sf-progressHero--time">
+            <div class="sf-progressHeroKicker">{{ i18n.lang === "tr" ? "Odak süresi" : "Focus time" }}</div>
+            <div class="sf-progressHeroValue sf-progressHeroValue--sm">{{ formatProgressDurationSeconds(progressFocusSeconds(st)) }}</div>
+            <div class="sf-progressHeroSub">
+              {{
+                hasLiveFocusIncrement()
+                  ? (i18n.lang === "tr" ? "Kayitli sure + aktif odak blogunun canli suresi" : "Recorded total + live current focus block")
+                  : (i18n.lang === "tr" ? "Pomodoro bitisinde kaydedilen surelerin toplami" : "Sum of recorded Pomodoro durations")
+              }}
+            </div>
+            <div class="sf-progressHeroHint text-muted small">{{ progressFocusSeconds(st) | number : "1.0-0" }} s</div>
+          </div>
+        </div>
+        <div class="col-6 col-xl-3">
+          <div class="sf-progressHero sf-progressHero--quiz">
+            <div class="sf-progressHeroKicker">{{ i18n.lang === "tr" ? "Quiz denemesi" : "Quiz attempts" }}</div>
+            <div class="sf-progressHeroValue">{{ st.total_quiz_count }}</div>
+            <div class="sf-progressHeroSub">{{ i18n.lang === "tr" ? "kayıtlı deneme sayısı" : "stored attempts" }}</div>
+          </div>
+        </div>
+        <div class="col-6 col-xl-3">
+          <div class="sf-progressHero sf-progressHero--score">
+            <div class="sf-progressHeroKicker">{{ i18n.lang === "tr" ? "Ortalama deneme skoru" : "Avg attempt score" }}</div>
+            <div class="sf-progressHeroValue">
+              <ng-container *ngIf="st.average_quiz_score != null; else noAvg">{{ st.average_quiz_score | number : "1.0-1" }}%</ng-container>
+              <ng-template #noAvg>—</ng-template>
+            </div>
+            <div class="sf-progressHeroSub">
+              {{
+                i18n.lang === "tr"
+                  ? "Her denemenin % skorunun aritmetik ortalaması (quiz uzunluğundan bağımsız)"
+                  : "Mean of each attempt’s % score (not weighted by question count)"
+              }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sf-progressCard mb-4" *ngIf="profileBadges.length">
+        <div class="sf-statsBadgeHead">
+          <div>
+            <h2 class="sf-progressCardTitle mb-1">{{ i18n.lang === "tr" ? "Rozet ilerlemesi" : "Badge progress" }}</h2>
+            <p class="sf-progressCardLead mb-0">
+              {{
+                i18n.lang === "tr"
+                  ? "Açtığın rozetleri buradan takip edebilirsin."
+                  : "Track how many badges you have unlocked."
+              }}
+            </p>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="go('badges')">
+            {{ i18n.lang === "tr" ? "Rozetlere git" : "Open badges" }}
+          </button>
+        </div>
+        <div class="sf-statsBadgeCounts">
+          <span class="sf-statsBadgeValue">{{ badgeEarnedCount() }}/{{ badgeTotalCount() }}</span>
+          <span class="sf-statsBadgePct">%{{ badgeCompletionPercent() }}</span>
+        </div>
+        <div class="sf-badgeOverviewTrack" aria-hidden="true">
+          <div class="sf-badgeOverviewFill" [style.width.%]="badgeCompletionPercent()"></div>
+        </div>
+      </div>
+
+      <div class="sf-statusProgressCard mb-4" *ngIf="studyStats as stx">
+        <div class="sf-statusProgressHead">{{ i18n.lang === "tr" ? "Çalışma durumu" : "Study status" }}</div>
+        <div class="sf-statusProgressTrack" role="progressbar" [attr.aria-valuenow]="statusProgressPercent()" aria-valuemin="0" aria-valuemax="100">
+          <div class="sf-statusProgressFill" [style.width.%]="statusProgressPercent()"></div>
+        </div>
+        <div class="sf-statusProgressStats">
+          <div class="sf-statusProgressStat">
+            <strong class="text-success">{{ statusProgressCounts().completed }}</strong>
+            <span>{{ i18n.lang === "tr" ? "tamamlanan" : "completed" }}</span>
+          </div>
+          <div class="sf-statusProgressStat">
+            <strong class="text-primary">{{ statusProgressCounts().pending }}</strong>
+            <span>{{ i18n.lang === "tr" ? "bekleyen" : "pending" }}</span>
+          </div>
+          <div class="sf-statusProgressStat">
+            <strong class="text-danger">{{ statusProgressCounts().missed }}</strong>
+            <span>{{ i18n.lang === "tr" ? "kaçırılan" : "missed" }}</span>
+          </div>
+        </div>
+        <p [class]="statusProgressToneClass()">{{ statusProgressMessage() }}</p>
+      </div>
+
+      <div class="row g-3 mb-4" *ngIf="studyStats as st2">
+        <div class="col-lg-12">
+          <div class="sf-progressCard h-100">
+            <h2 class="sf-progressCardTitle">{{ i18n.lang === "tr" ? "Quiz: doğru / yanlış / boş" : "Quiz: correct / wrong / blank" }}</h2>
+            <p class="sf-progressCardLead">
+              {{
+                i18n.lang === "tr"
+                  ? "Tüm denemelerdeki soru hücrelerinin toplamı. Boş sayısı veritabanında yoksa (soru − doğru − yanlış) ile tamamlanır."
+                  : "Totals across all attempts. Blank uses stored blank count, or (questions − correct − wrong) when missing."
+              }}
+            </p>
+            <div class="sf-quizStack mb-3" *ngIf="st2.quiz_sum_question_slots > 0; else noQuizAgg">
+              <div
+                *ngFor="let seg of quizLifecycleBar()"
+                class="sf-quizStackSeg"
+                [class.sf-quizStackSeg--ok]="seg.kind === 'correct'"
+                [class.sf-quizStackSeg--bad]="seg.kind === 'wrong'"
+                [class.sf-quizStackSeg--blank]="seg.kind === 'blank'"
+                [style.width.%]="seg.pct"
+                [attr.title]="seg.kind + ' ' + (seg.pct | number : '1.0-1') + '%'"
+              ></div>
+            </div>
+            <ng-template #noQuizAgg>
+              <p class="text-muted small mb-0">{{ i18n.lang === "tr" ? "Henüz kayıtlı quiz yok." : "No stored quizzes yet." }}</p>
+            </ng-template>
+            <div class="row g-2 text-center small" *ngIf="st2.quiz_sum_question_slots > 0">
+              <div class="col-4">
+                <div class="sf-progressStat sf-progressStat--ok">
+                  <div class="sf-progressStatVal">{{ st2.quiz_sum_correct }}</div>
+                  <div class="sf-progressStatLbl">{{ i18n.lang === "tr" ? "Doğru" : "Correct" }}</div>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="sf-progressStat sf-progressStat--bad">
+                  <div class="sf-progressStatVal">{{ st2.quiz_sum_wrong }}</div>
+                  <div class="sf-progressStatLbl">{{ i18n.lang === "tr" ? "Yanlış" : "Wrong" }}</div>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="sf-progressStat">
+                  <div class="sf-progressStatVal text-secondary">{{ st2.quiz_sum_unanswered }}</div>
+                  <div class="sf-progressStatLbl">{{ i18n.lang === "tr" ? "Boş" : "Blank" }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="sf-progressInsight mt-3" *ngIf="st2.quiz_sum_question_slots > 0">
+              <div class="d-flex flex-wrap justify-content-between gap-2 align-items-baseline">
+                <strong>{{ i18n.lang === "tr" ? "Ömür boyu doğruluk (tüm sorular)" : "Lifetime accuracy (all questions)" }}</strong>
+                <span class="fs-5 fw-bold text-primary" *ngIf="st2.quiz_lifetime_accuracy_percent != null; else noLife">{{
+                  st2.quiz_lifetime_accuracy_percent | number : "1.0-1"
+                }}%</span>
+                <ng-template #noLife>—</ng-template>
+              </div>
+              <p class="small text-muted mb-0 mt-1">
+                {{
+                  i18n.lang === "tr"
+                    ? "100 × (toplam doğru) ÷ (toplam soru). Her soruya eşit ağırlık — kısa quizler ile uzun quizler aynı birimde sayılır."
+                    : "100 × (sum correct) ÷ (sum questions). Each question counts equally — short and long quizzes contribute by question count."
+                }}
+              </p>
+              <p class="small text-muted mb-0 mt-2">
+                {{
+                  i18n.lang === "tr"
+                    ? "Ortalama deneme skoru ise her quizin kendi yüzdesinin ortalamasıdır; farklı denemeler eşit ağırlıklıdır."
+                    : "Avg attempt score is the simple mean of per-quiz percentages; each attempt counts equally."
+                }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sf-progressCard mb-4" *ngIf="studyStats?.pomodoro_recent_sessions?.length">
+        <h2 class="sf-progressCardTitle">{{ i18n.lang === "tr" ? "Son Pomodoro oturumları" : "Recent Pomodoro sessions" }}</h2>
+        <p class="sf-progressCardLead">
+          {{ i18n.lang === "tr" ? "Son tamamlanan oturumlar (en fazla 40)." : "Latest completed sessions (up to 40)." }}
+        </p>
+        <div class="table-responsive sf-pomoTableWrap">
+          <table class="table table-sm align-middle mb-0 sf-pomoTable">
+            <thead>
+              <tr>
+                <th>{{ i18n.lang === "tr" ? "Bitiş" : "Ended" }}</th>
+                <th>{{ i18n.lang === "tr" ? "Konu" : "Topic" }}</th>
+                <th class="text-end">{{ i18n.lang === "tr" ? "Süre" : "Duration" }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of studyStats!.pomodoro_recent_sessions!.slice(0, 25)">
+                <td class="text-nowrap small">{{ row.end_time || row.start_time | date : "short" }}</td>
+                <td class="small">{{ row.topic || (i18n.lang === "tr" ? "Genel" : "General") }}</td>
+                <td class="text-end small font-monospace">{{ formatProgressDurationSeconds(row.duration_seconds) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-3" *ngIf="studyStats">
+        <div class="card-body">
+          <div class="fw-bold mb-2">{{ i18n.lang === "tr" ? "Uzun vadeli konu eğilimleri" : "Long-term topic trends" }}</div>
+          <p class="small text-muted mb-2">{{ i18n.lang === "tr" ? "Tüm geçmişe göre; tek PDF ile sınırlı değil." : "Based on full history, not one PDF." }}</p>
+          <div class="mb-2" *ngIf="studyStats.weak_topics?.length">
+            <span class="text-muted small d-block">{{ i18n.lang === "tr" ? "Geliştirilmesi gereken" : "Developing" }}</span>
+            <span *ngFor="let w of studyStats.weak_topics.slice(0, 10)" class="badge rounded-pill bg-danger bg-opacity-10 text-danger border me-1 mb-1">{{ w }}</span>
+          </div>
+          <div *ngIf="studyStats.strong_topics?.length">
+            <span class="text-muted small d-block">{{ i18n.lang === "tr" ? "Güçlü" : "Strong" }}</span>
+            <span *ngFor="let s of studyStats.strong_topics.slice(0, 10)" class="badge rounded-pill bg-success bg-opacity-10 text-success border me-1 mb-1">{{ s }}</span>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="btn sf-btnPrimary btn-sm" (click)="go('results')">
+        {{ i18n.lang === "tr" ? "Son sonuçlara git" : "See latest results" }}
+      </button>
+      </ng-container>
+      <ng-template #statsAuthGate>
+        <div class="sf-authWall card border-0 shadow-sm p-4 p-md-5 mx-auto" style="max-width: 32rem">
+          <h2 class="h5 mb-2">{{ "auth.wallTitle" | lang }}</h2>
+          <p class="text-muted mb-4">{{ "auth.wallBody" | lang }}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn sf-btnPrimary" (click)="openSessionDialog('login')">{{ "auth.openLogin" | lang }}</button>
+            <button type="button" class="btn sf-btnGhost" (click)="openSessionDialog('register')">{{ "auth.openSignup" | lang }}</button>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+
+    <section *ngIf="activeNav === 'profile'" class="sf-panel sf-page--profile">
+      <ng-container *ngIf="isAuthenticated; else profileAuthGate">
+        <app-user-profile (afterAccountDelete)="onProfileAccountDeleted()"></app-user-profile>
+      </ng-container>
+      <ng-template #profileAuthGate>
+        <div class="sf-authWall card border-0 shadow-sm p-4 p-md-5 mx-auto" style="max-width: 32rem">
+          <h2 class="h5 mb-2">{{ "auth.wallTitle" | lang }}</h2>
+          <p class="text-muted mb-4">{{ "auth.wallBody" | lang }}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn sf-btnPrimary" (click)="openSessionDialog('login')">{{ "auth.openLogin" | lang }}</button>
+            <button type="button" class="btn sf-btnGhost" (click)="openSessionDialog('register')">{{ "auth.openSignup" | lang }}</button>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+
+    <section *ngIf="activeNav === 'badges'" class="sf-panel">
+      <ng-container *ngIf="isAuthenticated; else badgesAuthGate">
+      <h1 class="sf-sectionLabel sf-sectionLabel--large mb-4">Badges</h1>
+      <div class="sf-badgeOverview mb-4" *ngIf="profileBadges.length">
+        <div class="sf-badgeOverviewTop">
+          <div>
+            <div class="sf-badgeOverviewLabel">{{ i18n.lang === "tr" ? "İlerleme" : "Progress" }}</div>
+            <div class="sf-badgeOverviewValue">{{ badgeEarnedCount() }}/{{ badgeTotalCount() }}</div>
+            <div class="sf-badgeOverviewHint">{{ i18n.lang === "tr" ? "rozet açıldı" : "badges unlocked" }}</div>
+          </div>
+          <div class="sf-badgeOverviewPct">%{{ badgeCompletionPercent() }}</div>
+        </div>
+        <p class="sf-badgeOverviewAction mb-2">
+          {{
+            i18n.lang === "tr"
+              ? "Rozetleri kazanmak için aşağıdaki aksiyonları tamamla."
+              : "Win badges by completing the actions shown below."
+          }}
+        </p>
+        <div class="sf-badgeOverviewTrack" aria-hidden="true">
+          <div class="sf-badgeOverviewFill" [style.width.%]="badgeCompletionPercent()"></div>
+        </div>
+      </div>
+      <div class="sf-badgeGroups" *ngIf="badgeSections.length">
+        <section class="sf-badgeGroup" *ngFor="let group of badgeSections">
+          <div class="sf-badgeGroupHead">
+            <h2 class="sf-badgeGroupTitle">{{ group.title }}</h2>
+            <span class="sf-badgeGroupMeta">{{ badgeGroupEarnedCount(group) }}/{{ group.badges.length }}</span>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6 col-lg-4" *ngFor="let b of group.badges">
+              <div class="sf-badgeCard" [class.sf-badgeCard--earned]="b.earned">
+                <div class="sf-badgeCardIcon">★</div>
+                <div>
+                  <div class="sf-badgeCardTitle">{{ b.title }}</div>
+                  <div class="sf-badgeCardDesc">{{ b.description }}</div>
+                  <div class="sf-badgeCardState" *ngIf="b.earned">{{ i18n.lang === "tr" ? "Açıldı" : "Unlocked" }}</div>
+                  <div class="sf-badgeCardAction" *ngIf="!b.earned">
+                    <div class="sf-badgeCardActionText">{{ badgeActionLine(b) }}</div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="runBadgeAction(b)">
+                      {{ badgeActionCta(b) }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      </ng-container>
+      <ng-template #badgesAuthGate>
+        <div class="sf-authWall card border-0 shadow-sm p-4 p-md-5 mx-auto" style="max-width: 32rem">
+          <h2 class="h5 mb-2">{{ "auth.wallTitle" | lang }}</h2>
+          <p class="text-muted mb-4">{{ "auth.wallBody" | lang }}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn sf-btnPrimary" (click)="openSessionDialog('login')">{{ "auth.openLogin" | lang }}</button>
+            <button type="button" class="btn sf-btnGhost" (click)="openSessionDialog('register')">{{ "auth.openSignup" | lang }}</button>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+  </div>
+</main>
+
+<app-pomodoro-widget *ngIf="isAuthenticated" [userId]="signedInId"></app-pomodoro-widget>
+
+<app-session-dialog
+  [visible]="sessionDialogOpen"
+  (visibleChange)="onSessionDialogVisibleChange($event)"
+  [initialTab]="sessionDialogTab"
+  [noticeMessage]="sessionDialogNotice"
+  (authenticated)="onSessionAuthenticated()"
+></app-session-dialog>

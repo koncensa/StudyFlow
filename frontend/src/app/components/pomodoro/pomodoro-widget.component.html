@@ -1,0 +1,70 @@
+<!-- ui: pomodoro-widget | tr: yüzen pomodoro html şablonu / en: floating pomodoro widget html template -->
+
+<div class="sf-pomoDock" *ngIf="expanded" aria-label="Pomodoro">
+  <div class="sf-pomoCard card border-0 shadow">
+    <div class="sf-pomoCardHead">
+      <span class="sf-pomoTitle">Pomodoro</span>
+      <button type="button" class="btn btn-link btn-sm sf-pomoMin" (click)="togglePanel()" title="Minimize">-</button>
+    </div>
+
+    <div class="sf-pomoCardBody" *ngIf="snap">
+      <div class="sf-pomoTopic text-truncate" *ngIf="topic" [title]="topic">{{ topic }}</div>
+
+      <div class="sf-pomoMode">
+        <span class="sf-pomoModeLabel">{{ snap.phaseDisplay }}</span>
+        <span class="sf-pomoFocusOrd text-muted" *ngIf="snap.focusOrdinal > 0">
+          ({{ snap.focusOrdinal }} / 4)
+        </span>
+      </div>
+      <div class="sf-pomoTime">{{ formatTimer() }}</div>
+
+      <div class="sf-pomoMeta small">
+        <div>Next: <strong class="text-body">{{ snap.nextPhaseDisplay }}</strong></div>
+        <div>Completed pomodoros: <strong class="text-body">{{ snap.completedFocusTotal }}</strong></div>
+        <div class="mt-1">
+          Durations: focus {{ snap.effectiveFocusMin }}m · short {{ snap.effectiveShortMin }}m · long
+          {{ snap.effectiveLongMin }}m
+        </div>
+      </div>
+
+      <div
+        class="sf-pomoStatus"
+        [ngClass]="snap.isRunning ? 'sf-pomoStatus--run' : 'sf-pomoStatus--pause'"
+      >
+        {{ snap.isRunning ? "Running" : "Paused" }}
+      </div>
+
+      <div class="sf-pomoBtnRow">
+        <button
+          type="button"
+          class="btn btn-sm sf-btnPrimary"
+          (click)="startOrResume()"
+          [disabled]="snap.isRunning"
+        >
+          {{ primaryActionLabel() }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          (click)="pause()"
+          [disabled]="!snap.isRunning"
+        >
+          Pause
+        </button>
+        <button type="button" class="btn btn-sm btn-link text-muted px-1" (click)="reset()">
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<button
+  type="button"
+  class="sf-pomoFab"
+  *ngIf="!expanded"
+  (click)="togglePanel()"
+  title="Pomodoro"
+  aria-label="Open Pomodoro"
+>
+  🍅
+</button>

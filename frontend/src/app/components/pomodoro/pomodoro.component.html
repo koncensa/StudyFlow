@@ -1,0 +1,115 @@
+<!-- ui: pomodoro | tr: pomodoro tam sayfa html şablonu / en: pomodoro full page html template -->
+
+<div class="sf-pomoPage" *ngIf="snap">
+  <div class="sf-pomoCard sf-pomoCard--page card border-0 shadow mb-3">
+    <div class="sf-pomoCardHead sf-pomoCardHead--page">
+      <div>
+        <span class="sf-pomoTitle">Pomodoro</span>
+        <p class="sf-pomoLead mb-0">
+          Four focus blocks with short pauses, then a long break — classic rhythm for deep work (25 / 5 / 15 minutes).
+        </p>
+      </div>
+    </div>
+
+    <div class="sf-pomoCardBody sf-pomoCardBody--page">
+      <div class="sf-pomoTopic text-muted text-truncate" *ngIf="topic" [title]="topic">{{ topic }}</div>
+
+      <div class="sf-pomoLayout" [ngClass]="phaseThemeClass()">
+        <div class="sf-pomoHero">
+          <div class="sf-pomoRingWrap" aria-hidden="true">
+            <svg class="sf-pomoRingSvg" viewBox="0 0 140 140">
+              <circle
+                class="sf-pomoRingTrack"
+                [attr.cx]="ring.cx"
+                [attr.cy]="ring.cy"
+                [attr.r]="ring.r"
+                fill="none"
+                [attr.stroke-width]="ring.sw"
+              />
+              <circle
+                class="sf-pomoRingProg"
+                [attr.cx]="ring.cx"
+                [attr.cy]="ring.cy"
+                [attr.r]="ring.r"
+                fill="none"
+                [attr.stroke-width]="ring.sw"
+                [attr.stroke-dasharray]="ringLen"
+                [attr.stroke-dashoffset]="ringDashoffset()"
+                transform="rotate(-90 70 70)"
+              />
+            </svg>
+            <div class="sf-pomoRingCenter">
+              <div class="sf-pomoTime sf-pomoTime--ring">{{ formatTimer() }}</div>
+              <div class="sf-pomoMode sf-pomoMode--ring">
+                <span class="sf-pomoModeLabel">{{ snap.phaseDisplay }}</span>
+                <span class="sf-pomoFocusOrd text-muted" *ngIf="snap.focusOrdinal > 0">
+                  · {{ snap.focusOrdinal }} / 4
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sf-pomoAside">
+          <div class="sf-pomoStrip" aria-label="Pomodoro cycle steps">
+            <span
+              class="sf-pomoSeg"
+              *ngFor="let st of cycleStepIndices()"
+              [ngClass]="cycleStepClass(st)"
+              [attr.title]="cycleStepTitle(st)"
+            >
+              <span class="sf-pomoSegLab">{{ cycleStepLabel(st) }}</span>
+            </span>
+          </div>
+          <p class="sf-pomoStripHint text-muted small mb-0">1–4 = focus · S = short · L = long</p>
+
+          <div class="sf-pomoTiles">
+            <div class="sf-pomoTile">
+              <span class="sf-pomoTileK">Next</span>
+              <span class="sf-pomoTileV">{{ snap.nextPhaseDisplay }}</span>
+            </div>
+            <div class="sf-pomoTile">
+              <span class="sf-pomoTileK">Done</span>
+              <span class="sf-pomoTileV">{{ snap.completedFocusTotal }}</span>
+            </div>
+            <div class="sf-pomoTile sf-pomoTile--wide">
+              <span class="sf-pomoTileK">Rhythm</span>
+              <span class="sf-pomoTileV"
+                >{{ snap.effectiveFocusMin }}m focus · {{ snap.effectiveShortMin }}m short ·
+                {{ snap.effectiveLongMin }}m long</span
+              >
+            </div>
+          </div>
+
+          <div
+            class="sf-pomoStatus"
+            [ngClass]="snap.isRunning ? 'sf-pomoStatus--run' : 'sf-pomoStatus--pause'"
+          >
+            {{ snap.isRunning ? "Running" : "Paused" }}
+          </div>
+
+          <div class="sf-pomoBtnRow">
+            <button
+              type="button"
+              class="btn btn-sm sf-btnPrimary"
+              [disabled]="snap.isRunning"
+              (click)="startOrResume()"
+            >
+              {{ primaryActionLabel() }}
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="!snap.isRunning" (click)="pause()">
+              Pause
+            </button>
+            <button type="button" class="btn btn-sm btn-link text-muted px-1" (click)="reset()">
+              Reset
+            </button>
+          </div>
+
+          <p class="sf-pomoTip mt-3 mb-0 text-muted">
+            Tip: use “Start Pomodoro” from weak-topic suggestions to pre-fill the topic here.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,139 @@
+/* ui: home | tr: ana sayfa css stilleri / en: home page css styles */
+
+.sf-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #6366f1;   /*kart üstündeki studyflow yazırengi*/
+  margin-bottom: 0.5rem;
+}
+
+.sf-heroPanel {
+  background: linear-gradient(145deg, #eef2ff 0%, #f0f7ff 45%, #faf5ff 100%); /*karta gölgelik sağlama , kart rengi sağ orta sağ*/
+  border-radius: 24px;
+  padding: 2rem 1.75rem; /*See what study first yazının kartının kalınlık rengi ayarlama*/
+  border: 1px solid #e8eaf6;
+}
+
+.sf-heroHeading {
+  font-family: var(--sf-font-serif);
+  font-size: clamp(1.65rem, 4vw, 2.15rem);
+  font-weight: 700;
+  color: #0f172a; /*See what study first yazının kartının rengi vs*/
+  line-height: 1.2;
+  margin: 0 0 0.75rem;
+}
+
+.sf-heroAccent {
+  font-style: italic;
+  font-weight: 600; /*study better  yazının  rengi vs*/
+  color: #6366f1;
+}
+
+.sf-heroSub {
+  color: #64748b;
+  font-size: 0.98rem; /*upload pdf get summary yazının  rengi vs*/
+  max-width: 36rem;
+  margin: 0 0 1.25rem;
+}
+
+.sf-flowRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center; /*upload->summary->ask->quiz dizilimi*/
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.sf-flowStep {
+  font-size: 0.72rem;
+  color: #475569; /*upload->summary->ask->quiz dizilimi yazı ve background rengi*/
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid #e2e8f0;
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+}
+
+.sf-flowArrow {
+  color: #94a3b8; /*upload->summary->ask->quiz dizilimi okları rengi*/
+  font-size: 0.75rem;
+}
+
+.sf-heroActions {
+  display: flex; /* go to quiz butonu hiza*/
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.sf-featureGrid {
+  margin-top: 1.5rem !important; /* pdf helper ve see kart yukarı hiza*/
+}
+
+.sf-featureCard {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid var(--sf-border); /*pdf helper , quick quiz , your progress route kartlarının rengi*/
+  padding: 1.25rem 1.35rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  height: 100%;
+}
+
+.sf-featureIcon {
+  font-size: 1.35rem;  /*pdf helper , quick quiz , your progress route kartlarının icon büyüklügünü vs ayarlama*/
+  margin-bottom: 0.5rem;
+}
+
+.sf-featureTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;  /*pdf helper , quick quiz , your progress route kartlarının başlık rengi*/
+  color: #0f172a;
+}
+
+.sf-featureDesc {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #64748b;  /*pdf helper , quick quiz , your progress route kartlarının yazılarının rengi*/
+}
+
+.sf-sectionLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #94a3b8; /*Badges yazısının rengi*/
+  margin-bottom: 0.75rem;
+}
+
+.sf-badgeTile {
+  background: #f5f1fb;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e5dbf1;  /*Badges yazısında First Focus rengi*/
+  font-size: 0.82rem;
+  height: 100%;
+}
+
+.sf-badgeTile--earned {
+  background: #f0e8f9; /*Badges yazısında First Upload , Quiz rengi*/
+  border-color: #dacced;
+}
+
+.sf-badgeIcon {
+  display: block;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: #6d67d8;  /*Badges yazısında yıldız ikonu rengi */
+  margin-bottom: 0.25rem;
+}
+
+.sf-badgeTitle {
+  font-weight: 700;  /*Badges yazısında First Upload , Quiz, Focus başlık rengi*/
+  color: #334155;
+}
+
+.sf-badgeHint {
+  font-size: 0.75rem;
+  color: #747a87; /*Badges yazısında First Upload , Quiz, Focus yazı rengi*/
+}

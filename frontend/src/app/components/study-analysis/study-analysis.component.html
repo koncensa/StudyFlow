@@ -1,0 +1,417 @@
+<!-- ui: study-analysis | tr: ilerleme analizi html şablonu / en: progress analysis html template -->
+
+<div *ngIf="showLoader" class="text-muted py-4 text-center">
+  {{ t("Loading analysis…", "Analiz yükleniyor…") }}
+</div>
+
+<div *ngIf="resultsError" class="alert alert-danger border mb-3" role="alert">
+  <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+    <span>{{ resultsError }}</span>
+    <button type="button" class="btn btn-sm btn-outline-danger text-nowrap" (click)="retryLoadResults.emit()">
+      {{ t("Try again", "Tekrar dene") }}
+    </button>
+  </div>
+</div>
+
+<div *ngIf="!showLoader && !hasShell && !resultsError" class="alert alert-light border" role="status">
+  {{ t("Take a quiz first to unlock topic analysis.", "Konu analizi için önce bir quiz çözün.") }}
+</div>
+
+<div *ngIf="!showLoader && hasShell" class="sf-report">
+  <header class="sf-report__header">
+    <div class="sf-report__headerText">
+      <h1 class="sf-report__title">{{ t("Quiz analysis", "Quiz analizi") }}</h1>
+      <p class="sf-report__lead">{{ headerSubtitle() }}</p>
+    </div>
+    <div class="sf-report__scoreBox" *ngIf="activeAttemptTotal() > 0 || activeAttemptScore() >= 0">
+      <span class="sf-report__scoreLabel">{{ t("Score", "Skor") }}</span>
+      <span class="sf-report__scoreValue">{{ activeAttemptScore() | number : "1.0-0" }}%</span>
+    </div>
+  </header>
+
+  <div class="sf-report__controls">
+    <div class="sf-report__segment" role="group" [attr.aria-label]="t('Data scope', 'Veri kapsamı')">
+      <button
+        type="button"
+        class="sf-report__segmentBtn"
+        [class.sf-report__segmentBtn--active]="analysisScope === 'selected'"
+        (click)="setAnalysisScope('selected')"
+        [disabled]="!analysisHistoryRows().length"
+      >
+        {{ t("By attempt", "Denemeye göre") }}
+      </button>
+      <button type="button" class="sf-report__segmentBtn" [class.sf-report__segmentBtn--active]="analysisScope === 'all'" (click)="setAnalysisScope('all')">
+        {{ t("All attempts", "Tüm denemeler") }}
+      </button>
+    </div>
+    <div class="sf-report__segment" role="group" [attr.aria-label]="t('View mode', 'Görünüm modu')">
+      <button
+        type="button"
+        class="sf-report__segmentBtn"
+        [class.sf-report__segmentBtn--active]="analysisView === 'focus'"
+        (click)="setAnalysisView('focus')"
+      >
+        {{ t("Focus view", "Odak görünüm") }}
+      </button>
+      <button
+        type="button"
+        class="sf-report__segmentBtn"
+        [class.sf-report__segmentBtn--active]="analysisView === 'detailed'"
+        (click)="setAnalysisView('detailed')"
+      >
+        {{ t("Detailed view", "Detaylı görünüm") }}
+      </button>
+    </div>
+    <p class="sf-report__scopeNote mb-0">{{ analysisScopeLabel() }}</p>
+    <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" (click)="openStatsTab.emit()">
+      &gt;&gt; {{ t("Go to stats", "İstatistiğe geç") }}
+    </button>
+  </div>
+
+  <div class="sf-report__attemptRow" *ngIf="analysisHistoryRows().length && analysisScope === 'selected'">
+    <span class="sf-report__attemptLabel">{{ t("Attempt", "Deneme") }}</span>
+    <div class="sf-report__attemptScroll">
+      <button
+        type="button"
+        class="sf-report__attemptPill"
+        *ngFor="let row of analysisHistoryRows().slice(0, 20)"
+        [class.sf-report__attemptPill--active]="isSelectedHistoryRow(row)"
+        (click)="selectHistoryRow(row)"
+      >
+        <span class="sf-report__attemptPillScore">{{ row.score | number : "1.0-0" }}%</span>
+        <span class="sf-report__attemptPillDate">{{ row.solvedAtIso | date : "short" }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="sf-report__grid">
+    <main class="sf-report__main">
+      <section class="sf-report__panel" *ngIf="activeAttemptTotal() > 0 || topicMetricRows().length">
+        <h2 class="sf-report__h2">{{ t("Summary", "Özet") }}</h2>
+        <div class="sf-report__kpis">
+          <div class="sf-report__kpi">
+            <span class="sf-report__kpiLabel">{{ t("Correct", "Doğru") }}</span>
+            <span class="sf-report__kpiVal sf-report__kpiVal--ok">{{ activeAttemptCorrect() }}</span>
+          </div>
+          <div class="sf-report__kpi">
+            <span class="sf-report__kpiLabel">{{ t("Wrong", "Yanlış") }}</span>
+            <span class="sf-report__kpiVal sf-report__kpiVal--bad">{{ activeAttemptWrong() }}</span>
+          </div>
+          <div class="sf-report__kpi">
+            <span class="sf-report__kpiLabel">{{ t("Blank", "Boş") }}</span>
+            <span class="sf-report__kpiVal sf-report__kpiVal--muted">{{ activeAttemptBlank() }}</span>
+          </div>
+          <div class="sf-report__kpi">
+            <span class="sf-report__kpiLabel">{{ t("Total", "Toplam") }}</span>
+            <span class="sf-report__kpiVal">{{ activeAttemptTotal() }}</span>
+          </div>
+        </div>
+      </section>
+
+      <div
+        class="sf-report__pair"
+        [class.sf-report__pair--single]="!(combinedRecommendationLines().length || (coachingPack && coachingPack.natural_feedback_lines?.length))"
+      >
+        <section class="sf-report__panel" *ngIf="combinedRecommendationLines().length || (coachingPack && coachingPack.natural_feedback_lines?.length)">
+          <h2 class="sf-report__h2">{{ t("Next steps", "Sonraki adımlar") }}</h2>
+          <ol class="sf-report__steps mb-0" *ngIf="combinedRecommendationLines().length">
+            <li *ngFor="let line of combinedRecommendationLines().slice(0, 5)">{{ line }}</li>
+          </ol>
+          <div class="sf-report__note mt-3" *ngIf="coachingPack && coachingPack.natural_feedback_lines && coachingPack.natural_feedback_lines.length">
+            <span class="sf-report__noteLabel">{{ t("Review note", "Deneme notu") }}</span>
+            <p class="sf-report__noteText mb-0" *ngFor="let line of coachingPack.natural_feedback_lines.slice(0, 2)">{{ line }}</p>
+          </div>
+        </section>
+
+        <section class="sf-report__panel">
+          <h2 class="sf-report__h2">{{ t("Mistake types", "Hata türleri") }}</h2>
+          <ng-container *ngIf="errorBucketTotal(); else noErrData">
+            <p class="sf-report__emphasis mb-3">{{ dominantErrorBucketLine() }}</p>
+            <div class="sf-report__bucketGrid">
+              <div class="sf-report__bucket" *ngFor="let b of errorBucketRows()">
+                <div class="sf-report__bucketTop">
+                  <span class="sf-report__bucketName">{{ errorBucketLabel(b.key) }}</span>
+                  <span class="sf-report__bucketCount">{{ b.count }}</span>
+                </div>
+                <div class="sf-report__bucketBar">
+                  <div class="sf-report__bucketBarFill" [style.width.%]="errorBucketPct(b.count)"></div>
+                </div>
+              </div>
+            </div>
+            <details class="sf-report__details mt-3" *ngIf="errorEntries().length">
+              <summary>{{ t("Technical breakdown", "Ayrıntılı etiketler") }}</summary>
+              <div class="sf-report__detailRows">
+                <div class="sf-report__detailRow" *ngFor="let e of errorEntries()">
+                  <span>{{ errorLabel(e.key) }}</span>
+                  <span>{{ e.count }}</span>
+                </div>
+              </div>
+              <p class="sf-report__finePrint mb-0" *ngIf="unansweredErrorCount() > 0">
+                {{ t("Blank answers", "Boş cevaplar") }}: {{ unansweredErrorCount() }}
+              </p>
+            </details>
+          </ng-container>
+          <ng-template #noErrData>
+            <p class="sf-report__muted mb-0">
+              {{ t("No mistake classification for this attempt.", "Bu deneme için hata sınıflaması kaydı yok.") }}
+            </p>
+          </ng-template>
+        </section>
+      </div>
+
+      <section class="sf-report__panel" *ngIf="hasTopicBandSection()">
+          <h2 class="sf-report__h2">{{ t("Weak & strong topics", "Zayıf ve güçlü konular") }}</h2>
+          <p class="sf-report__finePrint text-muted mb-3">
+            {{
+              t(
+                "Weak: below 60%. Strong: 75% and up. Rate = correct answers in that topic ÷ questions tagged with that topic. Mid band (60–74%) is listed under the two columns when present.",
+                "Zayıf: %60 altı. Güçlü: %75 ve üzeri. Oran = o konudaki doğru ÷ o konudaki soru. Orta bant (%60–74) varsa aşağıda listelenir."
+              )
+            }}
+          </p>
+          <div class="sf-report__split">
+            <div class="sf-report__splitCol">
+              <h3 class="sf-report__h3">{{ t("Weak topics", "Zayıf konular") }}</h3>
+              <ng-container *ngIf="weakTopicMetricRows().length; else noWeakMetrics">
+                <div class="sf-report__tableHead" aria-hidden="true">
+                  <span>{{ t("Topic", "Konu") }}</span>
+                  <span class="sf-report__colNum">{{ t("Result", "Sonuç") }}</span>
+                  <span class="sf-report__colPct">{{ t("Rate", "Oran") }}</span>
+                </div>
+                <ul class="sf-report__topicList list-unstyled mb-0">
+                  <li class="sf-report__topicRow" *ngFor="let row of weakTopicMetricRows()">
+                    <span class="sf-report__topicName">{{ row.topic }}</span>
+                    <span class="sf-report__topicFrac text-muted">{{ row.correct }}/{{ row.total }}</span>
+                    <span class="sf-report__topicPct">{{ formatTopicRatePct(row) }}%</span>
+                    <div class="sf-report__topicBar" aria-hidden="true">
+                      <div
+                        class="sf-report__topicBarFill"
+                        [ngClass]="metricStatusClass(row.pct)"
+                        [style.width.%]="barWidthPct(row.pct)"
+                      ></div>
+                    </div>
+                  </li>
+                </ul>
+              </ng-container>
+              <ng-template #noWeakMetrics>
+                <p class="sf-report__muted small mb-0">
+                  {{ t("No weak topics in this band for this attempt.", "Bu denemede bu bantta zayıf konu yok.") }}
+                </p>
+              </ng-template>
+            </div>
+            <div class="sf-report__splitCol">
+              <h3 class="sf-report__h3">{{ t("Strong topics", "Güçlü konular") }}</h3>
+              <ng-container *ngIf="strongTopicMetricRows().length; else noStrongMetrics">
+                <div class="sf-report__tableHead" aria-hidden="true">
+                  <span>{{ t("Topic", "Konu") }}</span>
+                  <span class="sf-report__colNum">{{ t("Result", "Sonuç") }}</span>
+                  <span class="sf-report__colPct">{{ t("Rate", "Oran") }}</span>
+                </div>
+                <ul class="sf-report__topicList list-unstyled mb-0">
+                  <li class="sf-report__topicRow" *ngFor="let row of strongTopicMetricRows()">
+                    <span class="sf-report__topicName">{{ row.topic }}</span>
+                    <span class="sf-report__topicFrac text-muted">{{ row.correct }}/{{ row.total }}</span>
+                    <span class="sf-report__topicPct">{{ formatTopicRatePct(row) }}%</span>
+                    <div class="sf-report__topicBar" aria-hidden="true">
+                      <div
+                        class="sf-report__topicBarFill"
+                        [ngClass]="metricStatusClass(row.pct)"
+                        [style.width.%]="barWidthPct(row.pct)"
+                      ></div>
+                    </div>
+                  </li>
+                </ul>
+              </ng-container>
+              <ng-template #noStrongMetrics>
+                <p class="sf-report__muted small mb-0">
+                  {{ t("No strong topics in this band for this attempt.", "Bu denemede bu bantta güçlü konu yok.") }}
+                </p>
+              </ng-template>
+            </div>
+          </div>
+          <div class="mt-4" *ngIf="developingTopicMetricRows().length">
+            <h3 class="sf-report__h3">{{ t("Building (60–74%)", "Orta bant (%60–74)") }}</h3>
+            <div class="sf-report__tableHead" aria-hidden="true">
+              <span>{{ t("Topic", "Konu") }}</span>
+              <span class="sf-report__colNum">{{ t("Result", "Sonuç") }}</span>
+              <span class="sf-report__colPct">{{ t("Rate", "Oran") }}</span>
+            </div>
+            <ul class="sf-report__topicList list-unstyled mb-0">
+              <li class="sf-report__topicRow" *ngFor="let row of developingTopicMetricRows()">
+                <span class="sf-report__topicName">{{ row.topic }}</span>
+                <span class="sf-report__topicFrac text-muted">{{ row.correct }}/{{ row.total }}</span>
+                <span class="sf-report__topicPct">{{ formatTopicRatePct(row) }}%</span>
+                <div class="sf-report__topicBar" aria-hidden="true">
+                  <div
+                    class="sf-report__topicBarFill"
+                    [ngClass]="metricStatusClass(row.pct)"
+                    [style.width.%]="barWidthPct(row.pct)"
+                  ></div>
+                </div>
+              </li>
+            </ul>
+          </div>
+      </section>
+
+      <section class="sf-report__panel" *ngIf="showAdvancedSections() && attemptStudyNote().trim().length">
+        <h2 class="sf-report__h2">{{ t("Study note from this quiz", "Quizden çalışma notu") }}</h2>
+        <p class="sf-report__finePrint text-muted mb-2">
+          {{
+            t(
+              "Auto summary from topic scores (you can paste into your notes).",
+              "Konu skorlarından otomatik özet — kendi notlarına yapıştırabilirsin."
+            )
+          }}
+        </p>
+        <div class="d-flex flex-wrap gap-2 mb-2">
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="copyStudyNote(studyNoteTa)">
+            {{ t("Copy", "Kopyala") }}
+          </button>
+        </div>
+        <textarea
+          #studyNoteTa
+          class="form-control font-monospace small"
+          rows="9"
+          readonly
+          [value]="attemptStudyNote()"
+        ></textarea>
+      </section>
+
+      <section class="sf-report__panel sf-report__panel--resources" *ngIf="showAdvancedSections() && hasShell">
+        <h2 class="sf-report__h2">{{ t("Personalized pack", "Kişiselleştirilmiş paket") }}</h2>
+        <p class="sf-report__muted sf-report__finePrint mb-3">
+          {{
+            t(
+              "Topic hints from your last attempt plus curated video and web links for the focus topic.",
+              "Son denemene göre konu ipuçları ve seçtiğin odak konusu için sunucunun bulduğu video / web bağlantıları."
+            )
+          }}
+        </p>
+
+        <div class="sf-report__callout mb-3" *ngIf="recommendedMiniQuizCaption()">
+          <span class="sf-report__calloutLabel">{{ t("Mini quiz plan", "Mini quiz planı") }}</span>
+          <p class="sf-report__calloutText mb-0">{{ recommendedMiniQuizCaption() }}</p>
+        </div>
+
+        <div class="sf-report__resourceGrid" *ngIf="resourceTipsList().length">
+          <article class="sf-report__resourceCard" *ngFor="let tip of resourceTipsList()">
+            <h3 class="sf-report__resourceTitle">{{ tip.topic || t("Topic", "Konu") }}</h3>
+            <p class="sf-report__resourceLine mb-1" *ngIf="tip.short_summary"><strong>{{ t("Recap", "Özet") }}:</strong> {{ tip.short_summary }}</p>
+            <p class="sf-report__resourceLine mb-1" *ngIf="tip.explain_action"><strong>{{ t("Do this", "Ne yap") }}:</strong> {{ tip.explain_action }}</p>
+            <p class="sf-report__resourceLine mb-1 text-muted small" *ngIf="tip.pdf_section_hint">
+              <strong>{{ t("PDF", "PDF") }}:</strong> {{ tip.pdf_section_hint }}
+            </p>
+            <p class="sf-report__resourceLine mb-1 text-muted small" *ngIf="tip.mini_quiz_hint">
+              <strong>{{ t("Micro-drill", "Mini tekrar") }}:</strong> {{ tip.mini_quiz_hint }}
+            </p>
+            <p class="sf-report__resourceMeta mb-0" *ngIf="tip.pomodoro_minutes != null && tip.pomodoro_minutes > 0">
+              {{ t("Suggested focus block", "Önerilen odak") }}: {{ tip.pomodoro_minutes }} {{ t("min", "dk") }}
+            </p>
+          </article>
+        </div>
+        <p class="sf-report__muted mb-3" *ngIf="!resourceTipsList().length && !recommendedMiniQuizCaption()">
+          {{ t("Coaching tips will appear after your next scored quiz.", "Bir sonraki değerlendirilmiş quizden sonra burada ek ipuçları görünecek.") }}
+        </p>
+
+        <div class="sf-report__curated">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+            <span class="fw-semibold">{{ t("Curated links", "Seçilmiş bağlantılar") }}</span>
+            <span class="text-muted small text-truncate" style="max-width: 14rem" [title]="resourceTopic()">{{ resourceTopic() }}</span>
+          </div>
+          <div *ngIf="curatedError" class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <p class="alert alert-warning border mb-0 py-2 small flex-grow-1" role="alert">{{ curatedError }}</p>
+            <button type="button" class="btn btn-sm btn-outline-secondary text-nowrap" (click)="loadCuratedResources()">
+              {{ t("Retry", "Tekrar dene") }}
+            </button>
+          </div>
+          <div class="d-flex flex-wrap gap-2 align-items-center" *ngIf="!curatedLoading && !curatedError && curatedResources">
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="openCuratedVideo()">
+              {{ t("Open video pick", "Önerilen video") }}
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openCuratedWeb()">
+              {{ t("Open web pick", "Önerilen kaynak") }}
+            </button>
+            <button type="button" class="btn btn-sm btn-link" (click)="loadCuratedResources()">{{ t("Refresh", "Yenile") }}</button>
+          </div>
+          <p class="text-muted small mb-0" *ngIf="curatedLoading">{{ t("Loading picks…", "Bağlantılar yükleniyor…") }}</p>
+        </div>
+      </section>
+
+      <details class="sf-report__history" *ngIf="showAdvancedSections() && analysisHistoryRows().length">
+        <summary class="sf-report__historySummary">
+          {{ t("Past attempts", "Geçmiş denemeler") }}
+          <span class="sf-report__historyMeta">({{ historyAttemptCount() }} · {{ t("avg.", "ort.") }} {{ historyAverageScore() }}%)</span>
+        </summary>
+        <div class="sf-report__historyFilters">
+          <button
+            type="button"
+            class="sf-report__filterBtn"
+            *ngFor="let opt of sourceFilterOptions()"
+            [class.sf-report__filterBtn--on]="historySourceFilter === opt.key"
+            (click)="setHistorySourceFilter(opt.key)"
+          >
+            {{ opt.label }} ({{ opt.count }})
+          </button>
+        </div>
+        <p class="sf-report__finePrint" *ngIf="historyTopFocusTopics().length">
+          {{ t("Common focus topics", "Sık görülen odaklar") }}: {{ historyTopFocusTopics().join(", ") }}
+        </p>
+        <ul class="sf-report__historyList list-unstyled mb-0">
+          <li class="sf-report__historyItem" *ngFor="let row of analysisHistoryRows().slice(0, 15)">
+            <div class="sf-report__historyItemTop">
+              <span class="fw-semibold">{{ row.score | number : "1.0-0" }}%</span>
+              <span class="text-muted small">{{ row.solvedAtIso | date : "medium" }}</span>
+            </div>
+            <div class="small text-muted">
+              {{ row.correct }}/{{ row.correct + row.wrong + row.unanswered }} ·
+              <span class="text-danger">{{ row.wrong }}</span>
+              {{ t("wrong", "yanlış") }}
+              ·
+              <span class="text-secondary">{{ row.unanswered }}</span>
+              {{ t("blank", "boş") }}
+            </div>
+          </li>
+        </ul>
+      </details>
+    </main>
+
+    <aside class="sf-report__aside">
+      <div class="sf-report__asideCard">
+        <h2 class="sf-report__asideTitle">{{ t("Actions", "İşlemler") }}</h2>
+        <p class="sf-report__asideText" *ngIf="hasActivePdf && (weakTopicRows().length || mostMissedTopics().length)">
+          {{ miniQuizSummaryLine() }}
+        </p>
+        <p class="sf-report__asideText" *ngIf="!hasActivePdf">
+          {{ t("Open a PDF in Assistant to run quizzes from here.", "Quiz için Asistan sekmesinde PDF açın.") }}
+        </p>
+        <div class="sf-report__focusPick mb-3" *ngIf="focusTopicCandidates().length > 1">
+          <label class="sf-report__finePrint d-block mb-1">{{ t("Resource / link topic", "Kaynak ve bağlantı konusu") }}</label>
+          <div class="sf-report__chipRow">
+            <button
+              type="button"
+              class="sf-report__chip"
+              *ngFor="let ft of focusTopicCandidates()"
+              [class.sf-report__chip--on]="isFocusTopic(ft)"
+              (click)="setFocusTopic(ft)"
+            >
+              {{ ft }}
+            </button>
+          </div>
+        </div>
+        <div class="sf-report__asideBtns">
+          <button type="button" class="btn btn-primary w-100" [disabled]="!hasActivePdf" (click)="emitPersonalizedMiniQuiz()">
+            {{ t("Personalized mini quiz", "Kişiye özel mini quiz") }}
+          </button>
+          <button type="button" class="btn btn-outline-secondary w-100" (click)="openAssistant.emit()">
+            {{ t("Assistant", "Asistan") }}
+          </button>
+        </div>
+        <div class="sf-report__asideLinks">
+          <button type="button" class="btn btn-link btn-sm px-0" (click)="openVideoResource()">{{ t("Videos", "Video") }}</button>
+          <span class="text-muted">·</span>
+          <button type="button" class="btn btn-link btn-sm px-0" (click)="openWebResource()">{{ t("Web", "Web") }}</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
